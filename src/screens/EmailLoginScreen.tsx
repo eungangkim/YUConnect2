@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import auth from '@react-native-firebase/auth';
+import GoogleLogin from '../components/GoogleLogin';
 
 export default function EmailLoginScreen() {
   const [email, setEmail] = useState('');
@@ -80,6 +81,7 @@ export default function EmailLoginScreen() {
       <Button title={loading ? '처리 중...' : '로그인'} onPress={onLogin} disabled={loading} />
       <View style={{ height: 10 }} />
       <Button title={loading ? '처리 중...' : '회원가입'} onPress={onRegister} disabled={loading} />
+      <GoogleLogin></GoogleLogin>
     </View>
   );
 }

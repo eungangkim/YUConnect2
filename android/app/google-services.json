@@ -12,7 +12,20 @@
           "package_name": "com.yuconnect"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "914951198011-sa5jcsts75dpt1hgdktnht2c4ccpuk47.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yuconnect",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "914951198011-k8v8uaqu5k05gtheotjmq9a3m5uo1qdu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyABZgSIMLeM2dfmm9bDpHaE-k5ZvisOCFU"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "914951198011-k8v8uaqu5k05gtheotjmq9a3m5uo1qdu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
