@@ -1,10 +1,12 @@
-import HomeScreen from '../screens/HomeScreen';
-import { RootStackParamList } from '../types/navigation';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
+
+import { RootStackParamList } from '../types/navigation';
+import HomeScreen from '../screens/HomeScreen';
 import ExampleScreen from '../screens/ExampleScreen';
-import MatchingScreen
- from '../screens/MatchingScreen';
+import MatchingScreen from '../screens/MatchingScreen';
+import EmailLoginScreen from '../screens/EmailLoginScreen';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const StackNavigator = () => (
@@ -22,6 +24,7 @@ const StackNavigator = () => (
         component={ExampleScreen}
         options={{ headerShown: true }}
       />
+      <Stack.Screen name="EmailLogin" component={EmailLoginScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );

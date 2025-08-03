@@ -5,4 +5,5 @@ export type RootStackParamList = {
         id:number
         name:string
     };
+    EmailLogin:undefined
 }

@@ -19,6 +19,11 @@ const HomeScreen = () => {
           navigation.navigate('매칭', { id: 1, name: '김은강' });
         }}
       />
+      <Button
+        title="로그인"
+        onPress={() => {
+          navigation.navigate('EmailLogin');
+        }}/>
     </View>
   );
 };

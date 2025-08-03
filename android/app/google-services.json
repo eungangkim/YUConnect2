@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "914951198011",
+    "project_id": "yuconnect2-170c9",
+    "storage_bucket": "yuconnect2-170c9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:914951198011:android:aac7149586413f01a6d31e",
+        "android_client_info": {
+          "package_name": "com.yuconnect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABZgSIMLeM2dfmm9bDpHaE-k5ZvisOCFU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
