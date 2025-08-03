@@ -13,6 +13,12 @@ const HomeScreen = () => {
         onPress={() => {
           navigation.navigate('Example');
         }}/>
+        <Button
+        title="매칭화면"
+        onPress={() => {
+          navigation.navigate('매칭', { id: 1, name: '김은강' });
+        }}
+      />
     </View>
   );
 };
