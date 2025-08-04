@@ -25,7 +25,7 @@ const StackNavigator = () => (
         component={ExampleScreen}
         options={{ headerShown: true }}
       />
-      <Stack.Screen name="EmailLogin" component={LoginScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="UserInfo" component={UserInfoScreen} />
     </Stack.Navigator>
   </NavigationContainer>

@@ -18,7 +18,7 @@ export default function UserInfoScreen({ navigation }: Props) {
   const handleLogout = async () => {
     try {
       await auth().signOut();
-      navigation.replace('EmailLogin');
+      navigation.replace('Login');
     } catch (error) {
       console.error('로그아웃 실패:', error);
     }
@@ -100,12 +100,16 @@ export default function UserInfoScreen({ navigation }: Props) {
             </View>
           </ScrollView>
         ) : (
-          <Text>로그인 정보 없음</Text>
+          <Text style={style.noinfo}>로그인 정보 없음</Text>
         )}
       </View>
 
       <View style={style.logout}>
-        <Button title="로그아웃" onPress={handleLogout} />
+        {user?
+                <Button title="로그아웃" onPress={handleLogout} />
+            :        <Button title="로그인" onPress={()=>navigation.replace("Login")} />
+
+        }
       </View>
     </GestureHandlerRootView>
   );

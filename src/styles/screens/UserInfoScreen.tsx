@@ -4,22 +4,27 @@ const UserInfoScreenStyle = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   title: {
-    paddingTop:20,
-    fontSize: 30,
-    marginBottom: 20,
+    marginVertical:18,
+    textAlign:"center",
+    fontSize: 28,
   },
   itemContainer: {
     flex: 1,
     width: '95%',
     marginBottom:60,
+    marginHorizontal:10,
     padding: 8,
     backgroundColor: '#e6efd3ff',
     borderRadius: 8,
     borderWidth: 1,
+  },
+  noinfo:{
+    flex:1,
+    fontSize:40,
+    textAlign:"center",
+    textAlignVertical:"center",
   },
   row: {
     flexDirection: 'row',

@@ -39,7 +39,7 @@ const HomeScreen = () => {
       <Button
         title="로그인"
         onPress={() => {
-          navigation.navigate('EmailLogin');
+          navigation.navigate('Login');
         }}/>
        <Button
         title="사용자 정보"
