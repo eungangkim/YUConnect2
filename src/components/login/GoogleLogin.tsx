@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Text,
-  StyleSheet,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import {
@@ -13,8 +12,15 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import Icon from 'react-native-vector-icons/FontAwesome'; // 또는 MaterialIcons, Ionicons 등
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { RootStackParamList } from '../../types/navigation';
+import style from '../../styles/components/login/GoogleLogin';
 export default function GoogleLogin() {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -39,7 +45,7 @@ export default function GoogleLogin() {
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
       await auth().signInWithCredential(googleCredential);
 
-      console.log('User signed in!');
+      navigation.replace('Home');
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log('사용자가 로그인 취소함');
@@ -58,7 +64,7 @@ export default function GoogleLogin() {
   return (
     <View>
       <TouchableOpacity
-        style={[styles.button, loading && styles.disabledButton]}
+        style={[style.button, loading && style.disabledButton]}
         onPress={onGoogleButtonPress}
         disabled={loading}
         activeOpacity={0.8}
@@ -66,31 +72,13 @@ export default function GoogleLogin() {
         {loading ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (
-          <Text style={styles.buttonText}>Google Sign-In</Text>
+          <Text style={style.buttonText}>Google Sign-In</Text>
         )}
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={onGoogleButtonPress}>
+      <TouchableOpacity style={style.button} onPress={onGoogleButtonPress}>
         <Icon name="google" size={24} color="#fff" style={{ marginRight: 8 }} />
-        <Text style={styles.buttonText}>Google Sign-In</Text>
+        <Text style={style.buttonText}>Google Sign-In</Text>
       </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: '#4285F4',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  disabledButton: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});

@@ -25,7 +25,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
 import { posts } from '../data/data';
-import { MatchingScreenStyle } from '../styles/MatchingScreen';
+import { MatchingScreenStyle } from '../styles/screens/MatchingScreen';
 import ImageWindow from '../components/ImageWindow';
 const height = Dimensions.get('window').height;
 

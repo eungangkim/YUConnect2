@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Button, Text, Alert } from 'react-native';
 import auth from '@react-native-firebase/auth';
-import GoogleLogin from '../components/GoogleLogin';
+import {
+  NativeStackNavigationProp,
+} from '@react-navigation/native-stack';
 
-export default function EmailLoginScreen() {
+import { RootStackParamList } from '../../types/navigation';
+import { useNavigation } from '@react-navigation/native';
+import style from "../../styles/components/login/EmailLogin";
+
+export default function EmailLogin() {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,6 +27,7 @@ export default function EmailLoginScreen() {
     try {
       await auth().signInWithEmailAndPassword(email.trim(), password);
       Alert.alert('성공', '로그인 성공!');
+      navigation.replace('Home');
       // 로그인 성공 후 처리 (예: 화면 전환)
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
@@ -59,10 +69,10 @@ export default function EmailLoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>이메일 로그인</Text>
+    <View>
+      <Text style={style.title}>이메일 로그인</Text>
       <TextInput
-        style={styles.input}
+        style={style.input}
         placeholder="이메일"
         keyboardType="email-address"
         autoCapitalize="none"
@@ -71,41 +81,26 @@ export default function EmailLoginScreen() {
         editable={!loading}
       />
       <TextInput
-        style={styles.input}
+        style={style.input}
         placeholder="비밀번호"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
         editable={!loading}
       />
-      <Button title={loading ? '처리 중...' : '로그인'} onPress={onLogin} disabled={loading} />
+      <Button
+        title={loading ? '처리 중...' : '로그인'}
+        onPress={onLogin}
+        disabled={loading}
+      />
       <View style={{ height: 10 }} />
-      <Button title={loading ? '처리 중...' : '회원가입'} onPress={onRegister} disabled={loading} />
-      <GoogleLogin></GoogleLogin>
+      <Button
+        title={loading ? '처리 중...' : '회원가입'}
+        onPress={onRegister}
+        disabled={loading}
+      />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 24,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#aaa',
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 12,
-    fontSize: 16,
-  },
-});
+

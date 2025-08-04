@@ -5,7 +5,8 @@ import { RootStackParamList } from '../types/navigation';
 import HomeScreen from '../screens/HomeScreen';
 import ExampleScreen from '../screens/ExampleScreen';
 import MatchingScreen from '../screens/MatchingScreen';
-import EmailLoginScreen from '../screens/EmailLoginScreen';
+import UserInfoScreen from '../screens/UserInfoScreen';
+import LoginScreen from '../screens/LoginScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -24,7 +25,8 @@ const StackNavigator = () => (
         component={ExampleScreen}
         options={{ headerShown: true }}
       />
-      <Stack.Screen name="EmailLogin" component={EmailLoginScreen} />
+      <Stack.Screen name="EmailLogin" component={LoginScreen} />
+      <Stack.Screen name="UserInfo" component={UserInfoScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );
