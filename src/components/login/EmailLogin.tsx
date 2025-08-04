@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, Alert } from 'react-native';
 import auth from '@react-native-firebase/auth';
-import {
-  NativeStackNavigationProp,
-} from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { RootStackParamList } from '../../types/navigation';
 import { useNavigation } from '@react-navigation/native';
-import style from "../../styles/components/login/EmailLogin";
+import style from '../../styles/components/login/EmailLogin';
 
-export default function EmailLogin() {
+type Props = {
+  loading: boolean;
+  setLoading: (val: boolean) => void;
+};
+export default function EmailLogin({ loading, setLoading }: Props) {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const onLogin = async () => {
     if (!email || !password) {
@@ -102,5 +103,3 @@ export default function EmailLogin() {
     </View>
   );
 }
-
-

@@ -40,3 +40,7 @@
 2025년 8월 4일
     
     경고! - feature/login 브랜치에서 사용자 정보 화면 추가함.. "사용자 정보 화면" 브랜치만들어서 관리 바람
+
+    -npm install react-native-svg
+    -npm install firebase   // v22 migration
+    -npm install @react-native-async-storage/async-storage  
