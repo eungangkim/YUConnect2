@@ -1,11 +1,7 @@
 {
   "extends": "@react-native/typescript-config",
   "compilerOptions": {
-    "skipLibCheck": true
-  }
-}
-   "compilerOptions": {
+    "skipLibCheck": true,
     "jsx": "react-native",   
-   },
-  "extends": "@react-native/typescript-config"
+  }
 }
