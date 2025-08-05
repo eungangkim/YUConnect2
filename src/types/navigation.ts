@@ -5,5 +5,9 @@ export type RootStackParamList = {
         id:number
         name:string
     };
+    Login:undefined
+    Register:undefined
+    UserInfo:undefined
     공지사항:undefined
+
 }

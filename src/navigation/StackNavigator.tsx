@@ -1,11 +1,16 @@
-import HomeScreen from '../screens/HomeScreen';
-import { RootStackParamList } from '../types/navigation';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
+
+import { RootStackParamList } from '../types/navigation';
+import HomeScreen from '../screens/HomeScreen';
 import ExampleScreen from '../screens/ExampleScreen';
-import MatchingScreen
- from '../screens/MatchingScreen';
+
+import MatchingScreen from '../screens/MatchingScreen';
+import UserInfoScreen from '../screens/UserInfoScreen';
+import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
 import NotificationScreen from '../screens/NotificationScreen';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const StackNavigator = () => (
@@ -23,6 +28,9 @@ const StackNavigator = () => (
         component={ExampleScreen}
         options={{ headerShown: true }}
       />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="UserInfo" component={UserInfoScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen}/>
       <Stack.Screen
         name="알림"
         component={NotificationScreen}
