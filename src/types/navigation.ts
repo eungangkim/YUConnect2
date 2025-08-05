@@ -5,4 +5,5 @@ export type RootStackParamList = {
         id:number
         name:string
     };
+    공지사항:undefined
 }

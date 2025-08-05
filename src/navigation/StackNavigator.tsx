@@ -5,12 +5,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import ExampleScreen from '../screens/ExampleScreen';
 import MatchingScreen
  from '../screens/MatchingScreen';
+import NotificationScreen from '../screens/NotificationScreen';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const StackNavigator = () => (
   <NavigationContainer>
     <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} options={{headerShown:false}}/>
       <Stack.Screen
         name="매칭"
         component={MatchingScreen}
@@ -20,6 +21,11 @@ const StackNavigator = () => (
       <Stack.Screen
         name="Example"
         component={ExampleScreen}
+        options={{ headerShown: true }}
+      />
+      <Stack.Screen
+        name="알림"
+        component={NotificationScreen}
         options={{ headerShown: true }}
       />
     </Stack.Navigator>
