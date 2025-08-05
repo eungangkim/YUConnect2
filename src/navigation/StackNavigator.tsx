@@ -7,6 +7,7 @@ import ExampleScreen from '../screens/ExampleScreen';
 import MatchingScreen from '../screens/MatchingScreen';
 import UserInfoScreen from '../screens/UserInfoScreen';
 import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -27,6 +28,7 @@ const StackNavigator = () => (
       />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="UserInfo" component={UserInfoScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen}/>
     </Stack.Navigator>
   </NavigationContainer>
 );

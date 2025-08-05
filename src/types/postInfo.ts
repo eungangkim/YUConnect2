@@ -5,4 +5,5 @@ export type PostInfoParam = {
   description: string; // 사용자가 작성한 글
   userList: string[]; //참여된 사용자 배열
   chatRoute: string; //게시글에 참여하면 참가할 수 있는 대화창 주소
+  maxUserCount:number;
 };

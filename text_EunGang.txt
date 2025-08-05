@@ -27,6 +27,7 @@
 
 -data파일과 types파일 정리
 
+
 2025년 8월 1일
     -npm install @react-native-firebase/app
 

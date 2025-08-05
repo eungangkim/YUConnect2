@@ -6,5 +6,6 @@ export type RootStackParamList = {
         name:string
     };
     Login:undefined
+    Register:undefined
     UserInfo:undefined
 }

@@ -15,9 +15,10 @@ export function memberInfo(
     mbti:string,  //mbti
     interest:UserInterestProfile, //관심사
     forLove:boolean,  //연애가 목적
-    forFriendship:boolean //친구가 목적
+    forFriendship:boolean, //친구가 목적
+    MannerDegree:number     //매너 온도 0~100
 ){
-    return {id,name,sex,email,tel,birth,images,mbti,interest,forLove,forFriendship};
+    return {id,name,sex,email,tel,birth,images,mbti,interest,forLove,forFriendship,MannerDegree};
 }
 
 

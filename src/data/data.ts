@@ -1,3 +1,4 @@
+import { MainInterest } from "../types/memberInfo";
 import { memberInfo } from "./memberInfo";
 import { postInfo } from "./postInfo";
 
@@ -31,7 +32,8 @@ export const members = [
       },
     },
     true,
-    true
+    true,
+    50,
   ),
 
   memberInfo(
@@ -56,7 +58,8 @@ export const members = [
       },
     },
     false,
-    true
+    true,
+    50
   ),
 
   memberInfo(
@@ -81,7 +84,8 @@ export const members = [
       },
     },
     true,
-    false
+    false,
+    50
   ),
 
   memberInfo(
@@ -106,7 +110,8 @@ export const members = [
       },
     },
     false,
-    true
+    true,
+    50
   ),
   
 ];
@@ -149,3 +154,21 @@ export const posts = [
     "/chat/post4"
   ),
 ];
+
+  export const interestList: MainInterest[] = [
+    '운동',
+    '음악',
+    '영화/드라마/예능',
+    '게임',
+    '스터디',
+    '여행',
+    '반려동물',
+    '맛집 탐방',
+    '봉사활동',
+    '사진/영상',
+    '패션',
+    '자기계발',
+    '독서',
+    'MBTI',
+    '기타',
+  ];
