@@ -1,56 +1,118 @@
-import { useNavigation } from '@react-navigation/native';
-import { Button, View } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
 
-import { auth } from '../firebase/firebaseConfig';
-import { RootStackParamList } from '../types/navigation';
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  FlatList,
+} from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
+import { RootStackParamList } from "../types/navigation"; 
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-const HomeScreen = () => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+const { height } = Dimensions.get("window");
 
-  const [initializing, setInitializing] = useState(true);   //if true : firebase가 로그인상태를 확인 중 if false : 확인이 완료됨
-    const [user, setUser] = useState<User | null>(null);    //  user!=null 로그인 상태  user==null 로그아웃 상태
+const HomeScreen= () => {
+  const navigation =useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const notices = [
+    { id: "1", text: "📢 YU Connect에 오신 것을 환영합니다!" },
+    { id: "2", text: "✅ 새로운 매칭 기능이 업데이트되었어요!" },
+    { id: "3", text: "🎉 이번 주말, YU Connect 번개 모임!" },
+  ];
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, user => {   //onAuthStatgeChanged() 는 로그인 상태 변화를 감지하는 함수, 리스너를 추가하면 상태변화 감지마다 리스너를 실행    리스너를 해제해도 onAuthStatgeChanged()는 상태변화를 감지함 하지만 어떠한 행동도 하지 않음
-      setUser(user);
-      if (initializing) setInitializing(false);
-    });
-
-    return unsubscribe;   //return unsubscribe 와 unsubscribe()의 차이  -> useEffect()의 return 은 'clean up' 함수 || unsubscribe() 는 즉시 해제 
-  }, []);
-
-  if (initializing) return null;
-  
   return (
-    <View>
-      <Button
-        title="Example Screen"
-        onPress={() => {
-          navigation.navigate('Example');
-        }}/>
-        <Button
-        title="매칭화면"
-        onPress={() => {
-          navigation.navigate('매칭', { id: 1, name: '김은강' });
-        }}
-      />
-      <Button
-        title="로그인"
-        onPress={() => {
-          navigation.navigate('Login');
-        }}/>
-       <Button
-        title="사용자 정보"
-        onPress={() => {
-          navigation.navigate('UserInfo');
-        }}/>
-        
+    <View style={styles.container}>
+      {/* 상단 */}
+      <View style={styles.header}>
+        <Text style={styles.title}>YU Connect</Text>
+
+        <TouchableOpacity
+          style={styles.notificationButton}
+          onPress={() => navigation.navigate("알림")}
+        >
+          <Icon name="notifications-outline" size={30} color="#333" />
+        </TouchableOpacity>
+      </View>
+
+      {/* 중간 (공지사항) */}
+      <View style={styles.noticeBox}>
+        <FlatList
+          data={notices}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <Text style={styles.noticeText}>{item.text}</Text>
+          )}
+        />
+      </View>
+
+      {/* 하단 버튼 */}
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={styles.friendButton}
+          onPress={() => navigation.navigate("매칭",{name:"김은강",id:1})}
+        >
+          <Text style={styles.footerText}>👫 친구 매칭</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 export default HomeScreen;
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#F9F9F9" },
+  header: {
+    height: height / 7,
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    paddingHorizontal: 20,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    flex: 1,
+    textAlign: "center",
+  },
+  notificationButton: { position: "absolute", right: 20 },
+  noticeBox: {
+    height: (height / 7) * 5,
+    margin: 10,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 15,
+    backgroundColor: "#fff",
+  },
+  noticeText: { fontSize: 16, paddingVertical: 5 },
+  footer: {
+    height: height / 7,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    alignItems: "center",
+  },
+  friendButton: {
+    backgroundColor: "#4CAF50",
+    padding: 15,
+    borderRadius: 10,
+    flex: 1,
+    marginRight: 10,
+    alignItems: "center",
+  },
+  loveButton: {
+    backgroundColor: "#E91E63",
+    padding: 15,
+    borderRadius: 10,
+    flex: 1,
+    marginLeft: 10,
+    alignItems: "center",
+  },
+  footerText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+});

@@ -8,4 +8,6 @@ export type RootStackParamList = {
     Login:undefined
     Register:undefined
     UserInfo:undefined
+    공지사항:undefined
+
 }
