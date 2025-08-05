@@ -109,17 +109,6 @@ export const MatchingScreen = () => {
                 MatchingScreenStyle.pageView,
               ]}
             >
-              {/*
-              <TouchableOpacity
-                onPress={navigation.goBack}
-                style={MatchingScreenStyle.goBackTouchable}
-              >
-                <Image
-                  source={require('../assets/goBack.png')}
-                  style={MatchingScreenStyle.goBackImage}
-                ></Image>
-              </TouchableOpacity>
-              */}
               <View style={MatchingScreenStyle.userView}>
                 <Text style={MatchingScreenStyle.userText}>
                   참가한 사용자 목록
