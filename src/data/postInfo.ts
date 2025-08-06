@@ -4,6 +4,7 @@ import { MemberInfoParam } from "../types/memberInfo";
 export function postInfo(
   id: string, //key 값 (고유값)   -> firestore 자동생성
   authorUid:string, //
+  title:string,
   forLove: boolean, //true 라면 연애가 목적인 글
   forFriendship: boolean, //true 라면 친구가 목적인 글
   description: string, // 사용자가 작성한 글
@@ -11,7 +12,7 @@ export function postInfo(
   chatRoute: string, //게시글에 참여하면 참가할 수 있는 대화창 주소
   maxUserCount:number,
 ) {
-  return { id, authorUid, forLove, forFriendship, description, userList, chatRoute, maxUserCount};
+  return { id, authorUid,title, forLove, forFriendship, description, userList, chatRoute, maxUserCount};
 }
 
 

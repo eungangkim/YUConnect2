@@ -1,22 +1,8 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Switch,
-  Button,
-  ScrollView,
-  StyleSheet,
-  Alert,
-} from 'react-native';
-import {
-  MemberInfoParam,
-  MainInterest,
-  InterestDetails,
-  UserInterestProfile,
-} from '../types/memberInfo';
+import { View, Text, TextInput, Switch } from 'react-native';
+import { MemberInfoParam } from '../types/memberInfo';
 import Interest from './Interest';
-
+import { styles } from '../styles/components/MemberForm';
 type Props = {
   member: MemberInfoParam;
   setMember: React.Dispatch<React.SetStateAction<MemberInfoParam>>;
@@ -116,26 +102,3 @@ export default function MemberForm({ member, setMember }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
-  input: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 6,
-    marginBottom: 12,
-    paddingHorizontal: 10,
-    height: 40,
-  },
-  checkboxContainer: {
-    marginVertical: 12,
-  },
-  checkboxRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-    alignItems: 'center',
-  },
-});

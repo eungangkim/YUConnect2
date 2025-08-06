@@ -1,6 +1,7 @@
 export type PostInfoParam = {
     id: string, //key 값 (고유값)   -> firestore 자동생성
     authorUid:string, //
+    title:string,
     forLove: boolean, //true 라면 연애가 목적인 글
     forFriendship: boolean, //true 라면 친구가 목적인 글
     description: string, // 사용자가 작성한 글

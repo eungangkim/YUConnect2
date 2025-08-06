@@ -1,11 +1,9 @@
-import { doc, setDoc } from 'firebase/firestore';
-import { Button, ScrollView, View } from 'react-native';
-
-import { db } from '../firebase/firebaseConfig';
-import type { MemberInfoParam } from '../types/memberInfo'; // 타입 경로는 상황에 맞게
-import { members } from '../data/data';
-import MemberForm from '../components/memberForm';
+import { Button, ScrollView } from 'react-native';
 import { useState } from 'react';
+
+import type { MemberInfoParam } from '../types/memberInfo'; // 타입 경로는 상황에 맞게
+import MemberForm from '../components/MemberForm';
+import { firestore } from '../firebase';
 
 const RegisterScreen = () => {
   const [member, setMember] = useState<MemberInfoParam>({
@@ -33,13 +31,19 @@ const RegisterScreen = () => {
 
 async function addUserToFirestore(user: MemberInfoParam) {
   try {
-    // id를 문서 ID로 사용 (고유 번호)
-    const userRef = doc(db, 'users', user.id);
+    // 1. 문서 참조 생성 (자동 ID 포함)
+    const userRef = firestore().collection('users').doc();
 
-    // Firestore에 문서 추가 또는 덮어쓰기
-    await setDoc(userRef, user);
+    // 2. user 객체에 ID 포함
+    const userWithId = {
+      ...user,
+      id: userRef.id,
+    };
 
-    console.log('회원 정보가 Firestore에 저장되었습니다.');
+    // 3. 저장
+    await userRef.set(userWithId);
+
+    console.log('게시글이 Firestore에 저장되었습니다.');
   } catch (error) {
     console.error('Firestore 저장 중 오류 발생:', error);
   }

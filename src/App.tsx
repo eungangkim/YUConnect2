@@ -7,7 +7,6 @@
 
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import { useEffect } from 'react';
-import messaging from '@react-native-firebase/messaging';
 
 import StackNavigator from './navigation/StackNavigator';
 import {
@@ -17,7 +16,7 @@ import {
   saveFCMTokenToFirestore,
 } from './firebase/messageingSetup';
 import { members, posts } from './data/data';
-import { firestore } from './firebase';
+import { firestore,messaging } from './firebase';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
