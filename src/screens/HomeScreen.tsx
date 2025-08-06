@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   FlatList,
+  Button,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { RootStackParamList } from "../types/navigation"; 
@@ -26,6 +27,8 @@ const HomeScreen= () => {
   return (
     <View style={styles.container}>
       {/* 상단 */}
+            <Button title="로그인 화면" onPress={()=> navigation.navigate("Login")}/>
+
       <View style={styles.header}>
         <Text style={styles.title}>YU Connect</Text>
 

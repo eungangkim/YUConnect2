@@ -24,15 +24,22 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
-import { posts } from '../data/data';
 import { MatchingScreenStyle } from '../styles/screens/MatchingScreen';
 import ImageWindow from '../components/ImageWindow';
+import { onPostParticipate } from '../firebase/messageingSetup';
+import { firestore } from '../firebase/index';
+import { MemberInfoParam } from '../types/memberInfo';
+import { PostInfoParam } from '../types/postInfo';
 
 const height = Dimensions.get('window').height;
 
 export const MatchingScreen = () => {
   const [currentPageState, setCurrentPageState] = useState(0); // React용 상태
   const [selectedImages, setSelectedImages] = useState<Array<string | any>>([]); //현재 ImageWindow에 표시되고 있는 memberInfo.Images 리스트
+  const [posts, setPosts] = useState<any[]>([]);
+  const [users, setUsers] = useState<MemberInfoParam[]>([]);
+
+  const [loading, setLoading] = useState(true);
 
   const insets = useSafeAreaInsets();
   const usableHeight = height - insets.top - insets.bottom; //navigation의 header의 크기를 빼기 위해 inset 사용(사용해도 잘리는 문제 해결 안됨)
@@ -57,7 +64,7 @@ export const MatchingScreen = () => {
       updateSelectedImages(firstUser.images);
     } else {
       updateSelectedImages([]);
-    } 
+    }
   }, [currentPage]);
 
   const gesture = Gesture.Pan()
@@ -80,11 +87,54 @@ export const MatchingScreen = () => {
       }
       translateY.value = withSpring(-currentPage.value * parentHeight);
     });
-
+  const getPosts = async () => {
+    const snapshot = await firestore().collection('posts').get();
+    const postList = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setPosts(postList);
+  };
   useEffect(() => {
-    console.log('페이지가 바뀌었습니다:', currentPageState);
-    console.log('현재 translateY: ', translateY.value);
-  }, [currentPageState]);
+    const fetchPostsAndUsers = async () => {
+      setLoading(true);
+      // 1. posts 불러오기
+      const postsSnap = await firestore().collection('posts').get();
+      const postsData = postsSnap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as PostInfoParam[];
+      setPosts(postsData);
+
+      // 2. posts 내 userList에서 모든 유저 id 뽑기
+      const allUserIds = postsData.flatMap(post =>
+        post.userList.map(u => u),
+      );
+      const uniqueUserIds = Array.from(new Set(allUserIds));
+
+      // 3. 최대 10개씩 chunk 나누기 (Firestore 'in' 쿼리 제한)
+      const chunkSize = 10;
+      const fetchedUsers: MemberInfoParam[] = [];
+
+      for (let i = 0; i < uniqueUserIds.length; i += chunkSize) {
+        const chunk = uniqueUserIds.slice(i, i + chunkSize);
+
+        const usersSnap = await firestore()
+          .collection('users')
+          .where(firestore.FieldPath.documentId(), 'in', chunk)
+          .get();
+
+        usersSnap.docs.forEach(doc => {
+          fetchedUsers.push({ id: doc.id, ...doc.data() } as MemberInfoParam);
+        });
+      }
+
+      setUsers(fetchedUsers);
+      setLoading(false);
+    };
+
+    fetchPostsAndUsers();
+  }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
@@ -114,17 +164,23 @@ export const MatchingScreen = () => {
                   참가한 사용자 목록
                 </Text>
                 <ScrollView horizontal style={MatchingScreenStyle.userListView}>
-                  {item.userList.map(user => (
-                    <TouchableOpacity
-                      key={user.id}
-                      style={MatchingScreenStyle.userNameTouchable}
-                      onPress={() => setSelectedImages(user.images)}
-                    >
-                      <Text style={MatchingScreenStyle.userNameText}>
-                        {user.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                  {item.userList.map((id: string) => {
+                    const user = users.find(u => u.id === id);
+                    if (user === undefined) {
+                      return <Text>사용자가 불려오지 못함.</Text>;
+                    }
+                    return (
+                      <TouchableOpacity
+                        key={user.id}
+                        style={MatchingScreenStyle.userNameTouchable}
+                        onPress={() => setSelectedImages(user.images)}
+                      >
+                        <Text style={MatchingScreenStyle.userNameText}>
+                          {user.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </ScrollView>
 
                 <ImageWindow images={selectedImages} />
@@ -140,7 +196,10 @@ export const MatchingScreen = () => {
                     {item.description}
                   </Text>
                 </ScrollView>
-                <TouchableOpacity style={MatchingScreenStyle.enterTouchable}>
+                <TouchableOpacity
+                  style={MatchingScreenStyle.enterTouchable}
+                  onPress={() => onPostParticipate}
+                >
                   <Text style={MatchingScreenStyle.enterText}>참가하기</Text>
                 </TouchableOpacity>
               </View>

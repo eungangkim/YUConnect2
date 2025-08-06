@@ -50,3 +50,7 @@
 
     -npm install @react-native-firebase/messaging
     -npm install @react-native-firebase/firestore
+    -npm install axios
+    -npm install --save-dev @types/axios
+    -npm install -g firebase-tools
+    -npm install --save-dev @types/express

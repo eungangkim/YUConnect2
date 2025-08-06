@@ -120,38 +120,46 @@ export const members = [
 export const posts = [
   postInfo(
     "post1",
+    "gFEq74GQ04T6Og7mIaKlzk9lJUH3",
     true,
     false,
     "같이 넷플릭스 보고 영화 이야기 나눌 사람 구해요!ㅇㄴ어ㅣ너임너인밍ㄴ머이머이너머임임넝너ㅣ넘어미ㅣㅓ어임너ㅣㄴㅁ이닝너어ㅣㅁㄴ어ㅣㄴㅁ어ㅣㅁㄴ어ㅣㄴㅁ임너ㅣ언미언미어너ㅓㅣ니 🎬",
     [members[0],members[1],members[2],members[3],],
-    "/chat/post1"
+    "/chat/post1",
+    2
   ),
 
   postInfo(
     "post2",
+    "2",
     false,
     true,
     "주말마다 러닝할 친구 구해요. 한강에서 달려요! 🏃‍♂️",
     [members[2]],
-    "/chat/post2"
+    "/chat/post2",
+    5
   ),
 
   postInfo(
     "post3",
+    "3",
     true,
     true,
     "친구도 좋고 연애도 좋아요. 함께 전시회 가실 분~ 🎨",
     [members[0], members[1],members[2]],
-    "/chat/post3"
+    "/chat/post3",
+    6
   ),
 
   postInfo(
     "post4",
+    "4",
     false,
     true,
     "책 같이 읽고 이야기 나눌 사람 있나요? 📚",
     [members[0],members[3]],
-    "/chat/post4"
+    "/chat/post4",
+    5
   ),
 ];
 

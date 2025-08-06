@@ -10,7 +10,14 @@ import { useEffect } from 'react';
 import messaging from '@react-native-firebase/messaging';
 
 import StackNavigator from './navigation/StackNavigator';
-import { getFCMToken, registerMessageHandler, requestUserPermission,saveFCMTokenToFirestore } from './firebase/messageingSetup';
+import {
+  getFCMToken,
+  registerMessageHandler,
+  requestUserPermission,
+  saveFCMTokenToFirestore,
+} from './firebase/messageingSetup';
+import { members, posts } from './data/data';
+import { firestore } from './firebase';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -25,13 +32,42 @@ function App() {
       console.log('🔄 토큰 갱신됨:', newToken);
       saveFCMTokenToFirestore(newToken); // Firestore나 서버에 저장
     });
+    /*
+    const addDocs = async () => {
+      for (const data of posts) {
+        const docRef = await firestore().collection('posts').add(data);
 
+        // 2) 문서 ID 얻기
+        const generatedId = docRef.id;
+
+        // 3) 문서 필드에 id 저장
+        await docRef.update({ id: generatedId });
+      }
+      console.log('문서 추가 완료');
+    };
+    addDocs();
+    */
+   /*
+   const addUsers = async () => {
+      for (const data of members) {
+        const docRef = await firestore().collection('users').add(data);
+
+        // 2) 문서 ID 얻기
+        const generatedId = docRef.id;
+
+        // 3) 문서 필드에 id 저장
+        await docRef.update({ id: generatedId });
+      }
+      console.log('문서 추가 완료');
+    };
+    addUsers();
+    */
     return unsubscribe; // 언마운트 시 정리
   }, []);
   return (
-      <View style={styles.container}>
-        <StackNavigator />
-      </View>
+    <View style={styles.container}>
+      <StackNavigator />
+    </View>
   );
 }
 
