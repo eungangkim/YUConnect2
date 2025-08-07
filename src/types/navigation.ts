@@ -10,4 +10,5 @@ export type RootStackParamList = {
     UserInfo:undefined
     알림:undefined
     게시글작성:undefined
+    PostList:undefined
 }

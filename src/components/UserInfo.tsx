@@ -1,11 +1,15 @@
-import { Image, ScrollView, Text, View } from 'react-native';
+import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { auth } from '../firebase';
 import style from '../styles/components/UserInfo';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { RootStackParamList } from '../types/navigation';
 
 const UserInfo = () => {
   const user = auth().currentUser;
-
+  const navigation =useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   return (
     <View style={style.container}>
       <Text style={style.title}>👤 로그인된 사용자 정보</Text>
@@ -76,6 +80,10 @@ const UserInfo = () => {
             <Row label="Photo URL" value={user.providerData[0].photoURL} />
             <Row label="Provider ID" value={user.providerData[0].providerId} />
           </View>
+          <TouchableOpacity style={style.postButton} onPress={()=>navigation.navigate("PostList")}>
+            <Text style={style.postText}>나의 게시글</Text>
+            <Icon name="arrow-forward-outline" size={30} style={style.arrow}/>
+          </TouchableOpacity>
         </ScrollView>
       ) : (
         <Text style={style.noinfo}>로그인 정보 없음</Text>
