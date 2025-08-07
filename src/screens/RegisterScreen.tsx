@@ -20,6 +20,7 @@ const RegisterScreen = () => {
     interest: { interests: {}, detailedInterests: {} },
     forLove: false,
     forFriendship: false,
+    MannerDegree:50,
   });
   return (
         <ScrollView contentContainerStyle={{padding:10}}>
