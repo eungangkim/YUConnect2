@@ -38,32 +38,45 @@ const db = admin.firestore();
 
 // 알림 전송 함수: HTTP 요청으로 호출
 exports.sendNotification = functions.https.onRequest(async (req, res) => {
-  const { receiverUid, senderName, postTitle } = req.body;
+  const { tokens, senderName, postTitle } = req.body;
 
+  if (!tokens || !Array.isArray(tokens) || tokens.length === 0) {
+    console.error("❌ 유효하지 않은 토큰 배열:", tokens);
+    return res.status(400).send("잘못된 요청: 토큰이 없습a니다.");
+  }
+  if (!senderName || !postTitle) {
+    console.error("❌ 누락된 필드:", { senderName, postTitle });
+    return res.status(400).send("잘못된 요청: 필드 누락");
+  }
   try {
     // 사용자 문서에서 FCM 토큰 가져오기
-    const userDoc = await db.collection("users").doc(receiverUid).get();
-    const token = userDoc.data()?.fcmToken;
-
-    if (!token) {
-      return res.status(400).send("⚠️ FCM 토큰이 존재하지 않습니다.");
-    }
+    
 
     // FCM 메시지 구성
-    const message = {
-      token,
-      notification: {
-        title: `${senderName}님이 대화창에 참여하고 싶어합니다`,
-        body: `"${postTitle}" 대화창에 참여하고 싶어합니다!! 요청을 수락해주세요!!`,
-      },
-    };
-
-    // FCM 메시지 전송
-    await admin.messaging().send(message);
+    
+    if (tokens.length === 1) {
+      const message = {
+        token: tokens[0],
+        notification: {
+          title: `${senderName}님이 대화창에 참여하고 싶어합니다`,
+          body: `"${postTitle}" 대화창에 참여하고 싶어합니다!! 요청을 수락해주세요!!`
+        }
+      };
+      const response = await admin.messaging().send(message);
+      } else {
+        const message = {
+          tokens,
+          notification: {
+            title: `${senderName}님이 대화창에 참여하고 싶어합니다`,
+            body: `"${postTitle}" 대화창에 참여하고 싶어합니다!! 요청을 수락해주세요!!`
+          }
+        };
+      const response = await admin.messaging().sendMulticast(message);
+    }
 
     return res.status(200).send("✅ 알림 전송 완료");
   } catch (error) {
-    console.error("❌ 알림 전송 실패:", error);
+    console.error("❌ 알림 전송 실패입니다.:", error);
     return res.status(500).send("서버 오류");
   }
 });

@@ -107,9 +107,7 @@ export const MatchingScreen = () => {
       setPosts(postsData);
 
       // 2. posts 내 userList에서 모든 유저 id 뽑기
-      const allUserIds = postsData.flatMap(post =>
-        post.userList.map(u => u),
-      );
+      const allUserIds = postsData.flatMap(post => post.userList.map(u => u));
       const uniqueUserIds = Array.from(new Set(allUserIds));
 
       // 3. 최대 10개씩 chunk 나누기 (Firestore 'in' 쿼리 제한)
@@ -164,10 +162,14 @@ export const MatchingScreen = () => {
                   참가한 사용자 목록
                 </Text>
                 <ScrollView horizontal style={MatchingScreenStyle.userListView}>
-                  {item.userList.map((id: string) => {
+                  {item.userList.map((id: string,index:number) => {
                     const user = users.find(u => u.id === id);
                     if (user === undefined) {
-                      return <Text>사용자가 불려오지 못함.</Text>;
+                      return (
+                        <Text key={`missing-user-${index}`}>
+                          사용자가 불려오지 못함.
+                        </Text>
+                      );
                     }
                     return (
                       <TouchableOpacity
@@ -198,7 +200,7 @@ export const MatchingScreen = () => {
                 </ScrollView>
                 <TouchableOpacity
                   style={MatchingScreenStyle.enterTouchable}
-                  onPress={() => onPostParticipate}
+                  onPress={() => onPostParticipate(item.id)}
                 >
                   <Text style={MatchingScreenStyle.enterText}>참가하기</Text>
                 </TouchableOpacity>

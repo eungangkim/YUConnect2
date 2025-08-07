@@ -10,6 +10,7 @@ import UserInfoScreen from '../screens/UserInfoScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import NotificationScreen from '../screens/NotificationScreen';
+import PostCreationScreen from '../screens/PostCreationScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,6 +37,7 @@ const StackNavigator = () => (
         component={NotificationScreen}
         options={{ headerShown: true }}
       />
+      <Stack.Screen name="게시글작성" component={PostCreationScreen}/>
     </Stack.Navigator>
   </NavigationContainer>
 );

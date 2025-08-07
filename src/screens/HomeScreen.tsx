@@ -9,7 +9,9 @@ import {
   FlatList,
   Button,
 } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import AndDesign from 'react-native-vector-icons/AntDesign';
 import { RootStackParamList } from "../types/navigation"; 
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -27,16 +29,23 @@ const HomeScreen= () => {
   return (
     <View style={styles.container}>
       {/* 상단 */}
-            <Button title="로그인 화면" onPress={()=> navigation.navigate("Login")}/>
-
       <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("게시글작성")}
+        >
+          <FontAwesome name="plus" size={30} color="#333" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("UserInfo")}
+        >
+          <AndDesign name="user" size={30} color="#333" />
+        </TouchableOpacity>
         <Text style={styles.title}>YU Connect</Text>
 
         <TouchableOpacity
-          style={styles.notificationButton}
           onPress={() => navigation.navigate("알림")}
         >
-          <Icon name="notifications-outline" size={30} color="#333" />
+          <Ionicons name="notifications-outline" size={30} color="#333" />
         </TouchableOpacity>
       </View>
 

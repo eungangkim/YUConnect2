@@ -7,17 +7,17 @@
 
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import { useEffect } from 'react';
-import messaging from '@react-native-firebase/messaging';
 
 import StackNavigator from './navigation/StackNavigator';
 import {
   getFCMToken,
+  onMessageReceived,
   registerMessageHandler,
   requestUserPermission,
   saveFCMTokenToFirestore,
 } from './firebase/messageingSetup';
 import { members, posts } from './data/data';
-import { firestore } from './firebase';
+import { firestore,messaging } from './firebase';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -32,6 +32,7 @@ function App() {
       console.log('🔄 토큰 갱신됨:', newToken);
       saveFCMTokenToFirestore(newToken); // Firestore나 서버에 저장
     });
+    messaging().onMessage(async remoteMessage => onMessageReceived(remoteMessage));  	// 활성 상태 및 포그라운드 상태일때 FCM 메시지 수신
     /*
     const addDocs = async () => {
       for (const data of posts) {

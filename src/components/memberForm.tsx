@@ -1,27 +1,15 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Switch,
-  Button,
-  ScrollView,
-  StyleSheet,
-  Alert,
-} from 'react-native';
-import {
-  MemberInfoParam,
-  MainInterest,
-  InterestDetails,
-  UserInterestProfile,
-} from '../types/memberInfo';
+import { View, Text, TextInput, Switch } from 'react-native';
+import { MemberInfoParam } from '../types/memberInfo';
 import Interest from './Interest';
-
+import { styles } from '../styles/components/MemberForm';
 type Props = {
   member: MemberInfoParam;
   setMember: React.Dispatch<React.SetStateAction<MemberInfoParam>>;
+  password:string;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
 };
-export default function MemberForm({ member, setMember }: Props) {
+export default function MemberForm({ member, setMember,password,setPassword }: Props) {
   // 필드별 업데이트 헬퍼
   const setField = (field: keyof MemberInfoParam, value: any) => {
     setMember(prev => ({ ...prev, [field]: value }));
@@ -37,14 +25,6 @@ export default function MemberForm({ member, setMember }: Props) {
 
   return (
     <View>
-      <Text>ID</Text>
-      <TextInput
-        style={styles.input}
-        value={member.id}
-        onChangeText={text => setField('id', text)}
-        placeholder="고유 ID"
-      />
-
       <Text>이름</Text>
       <TextInput
         style={styles.input}
@@ -63,6 +43,15 @@ export default function MemberForm({ member, setMember }: Props) {
         onChangeText={text => setField('email', text)}
         placeholder="example@mail.com"
         keyboardType="email-address"
+      />
+
+      <Text>비밀번호(최소6자리)</Text>
+      <TextInput
+        style={styles.input}
+        value={password}
+        onChangeText={setPassword}
+        placeholder="password"
+        keyboardType="visible-password"
       />
 
       <Text>전화번호</Text>
@@ -116,26 +105,3 @@ export default function MemberForm({ member, setMember }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
-  input: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 6,
-    marginBottom: 12,
-    paddingHorizontal: 10,
-    height: 40,
-  },
-  checkboxContainer: {
-    marginVertical: 12,
-  },
-  checkboxRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-    alignItems: 'center',
-  },
-});
