@@ -11,6 +11,7 @@ export type MemberInfoParam = {
   forLove: boolean; //연애가 목적
   forFriendship: boolean; //친구가 목적
   MannerDegree:number; //매너 온도
+  tokens:{token:string}[];
 };
 
 export type UserInterestProfile = {

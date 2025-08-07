@@ -6,8 +6,10 @@ import { styles } from '../styles/components/MemberForm';
 type Props = {
   member: MemberInfoParam;
   setMember: React.Dispatch<React.SetStateAction<MemberInfoParam>>;
+  password:string;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
 };
-export default function MemberForm({ member, setMember }: Props) {
+export default function MemberForm({ member, setMember,password,setPassword }: Props) {
   // 필드별 업데이트 헬퍼
   const setField = (field: keyof MemberInfoParam, value: any) => {
     setMember(prev => ({ ...prev, [field]: value }));
@@ -23,14 +25,6 @@ export default function MemberForm({ member, setMember }: Props) {
 
   return (
     <View>
-      <Text>ID</Text>
-      <TextInput
-        style={styles.input}
-        value={member.id}
-        onChangeText={text => setField('id', text)}
-        placeholder="고유 ID"
-      />
-
       <Text>이름</Text>
       <TextInput
         style={styles.input}
@@ -49,6 +43,15 @@ export default function MemberForm({ member, setMember }: Props) {
         onChangeText={text => setField('email', text)}
         placeholder="example@mail.com"
         keyboardType="email-address"
+      />
+
+      <Text>비밀번호(최소6자리)</Text>
+      <TextInput
+        style={styles.input}
+        value={password}
+        onChangeText={setPassword}
+        placeholder="password"
+        keyboardType="visible-password"
       />
 
       <Text>전화번호</Text>

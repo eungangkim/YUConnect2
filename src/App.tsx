@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import StackNavigator from './navigation/StackNavigator';
 import {
   getFCMToken,
+  onMessageReceived,
   registerMessageHandler,
   requestUserPermission,
   saveFCMTokenToFirestore,
@@ -31,6 +32,7 @@ function App() {
       console.log('🔄 토큰 갱신됨:', newToken);
       saveFCMTokenToFirestore(newToken); // Firestore나 서버에 저장
     });
+    messaging().onMessage(async remoteMessage => onMessageReceived(remoteMessage));  	// 활성 상태 및 포그라운드 상태일때 FCM 메시지 수신
     /*
     const addDocs = async () => {
       for (const data of posts) {

@@ -16,9 +16,10 @@ export function memberInfo(
     interest:UserInterestProfile, //관심사
     forLove:boolean,  //연애가 목적
     forFriendship:boolean, //친구가 목적
-    MannerDegree:number     //매너 온도 0~100
+    mannerDegree:number,     //매너 온도 0~100
+    tokens:string[],   //사용자의 디바이스 토큰배열
 ){
-    return {id,name,sex,email,tel,birth,images,mbti,interest,forLove,forFriendship,MannerDegree};
+    return {id,name,sex,email,tel,birth,images,mbti,interest,forLove,forFriendship,mannerDegree,tokens};
 }
 
 
