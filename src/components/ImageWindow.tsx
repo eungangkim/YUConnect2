@@ -12,7 +12,7 @@ import {
 
 const { width, height } = Dimensions.get('window');
 
-function ImageWindow({ images }: { images: string[] }) {
+function ImageWindow({ images }: { images: {uri:string}[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
