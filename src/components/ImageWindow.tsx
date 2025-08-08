@@ -9,14 +9,13 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import { Icon } from 'react-native-vector-icons/Icon';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import style from '../styles/components/ImageWindow';
 const { width, height } = Dimensions.get('window');
 
-function ImageWindow({ images }: { images: { uri: string }[] }) {
+function ImageWindow({ images }: { images: string[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-
   useEffect(() => {
     setCurrentIndex(0);
   }, [images]);
@@ -42,18 +41,26 @@ function ImageWindow({ images }: { images: { uri: string }[] }) {
           ]}
           resizeMode="contain"
         />
+        <View style={style.buttons}>
+        <TouchableOpacity onPress={prevImage}>
+          <Icon name="arrow-back-outline" size={20} />
+        </TouchableOpacity>
+        <Text style={{ fontSize: 25 }}>
+          {currentIndex}/{images.length}
+        </Text>
+        <TouchableOpacity onPress={nextImage}>
+          <Icon name="arrow-forward-outline" size={20} />
+        </TouchableOpacity>
       </View>
+      </View>
+      
     );
   }
 
   return (
     <View style={[style.container, { width, height: height * 0.5 }]}>
       <Image
-        source={
-          typeof images[currentIndex] === 'string'
-            ? { uri: images[currentIndex] }
-            : images[currentIndex]
-        }
+        source={typeof images[currentIndex]==='string'?{uri:images[currentIndex]}:require("../assets/noImage.jpg")}
         style={[
             style.image,
             {

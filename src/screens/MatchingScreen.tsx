@@ -37,7 +37,6 @@ const height = Dimensions.get('window').height;
 
 export const MatchingScreen = () => {
   const [posts, setPosts] = useState<any[]>([]);
-  const [users, setUsers] = useState<MemberInfoParam[]>([]);
   const [loading, setLoading] = useState(true);
 
   const insets = useSafeAreaInsets();
@@ -71,6 +70,7 @@ export const MatchingScreen = () => {
         currentPage.value = Math.min(posts.length - 1, currentPage.value + 1);
       }
       translateY.value = withSpring(-currentPage.value * parentHeight);
+      console.log(currentPage);
     });
   const savePosts = async () => {
     const snapshot = await firestore().collection('posts').get();
@@ -85,30 +85,7 @@ export const MatchingScreen = () => {
       // 1. posts 불러오기
       await savePosts();
 
-      // 2. posts 내 userList에서 모든 유저 id 뽑기
-      const allUserIds = posts.flatMap(post =>
-        post.userList.map((u: string) => u),
-      );
-      const uniqueUserIds = Array.from(new Set(allUserIds));
-
-      // 3. 최대 10개씩 chunk 나누기 (Firestore 'in' 쿼리 제한)
-      const chunkSize = 10;
-      const fetchedUsers: MemberInfoParam[] = [];
-
-      for (let i = 0; i < uniqueUserIds.length; i += chunkSize) {
-        const chunk = uniqueUserIds.slice(i, i + chunkSize);
-
-        const usersSnap = await firestore()
-          .collection('users')
-          .where(firestore.FieldPath.documentId(), 'in', chunk)
-          .get();
-
-        usersSnap.docs.forEach(doc => {
-          fetchedUsers.push({ ...doc.data() } as MemberInfoParam);
-        });
-      }
-
-      setUsers(fetchedUsers);
+      
       setLoading(false);
     };
 
@@ -128,7 +105,7 @@ export const MatchingScreen = () => {
           style={[{ flex: 1 }, animatedStyle]}
         >
           {posts.map((post: PostInfoParam) => {
-            /*
+            
             if (loading) {
               return (
                 <View
@@ -143,12 +120,11 @@ export const MatchingScreen = () => {
                 </View>
               );
             }
-              */
+              
             return (
               <View key={post.id} style={style.pageView}>
                 <Post
                   post={post}
-                  users={users}
                   currentPage={currentPage}
                   loading={loading}
                 ></Post>

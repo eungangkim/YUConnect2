@@ -8,25 +8,41 @@ import { onPostParticipate } from '../firebase/messageingSetup';
 import { MemberInfoParam } from '../types/memberInfo';
 import { runOnJS, SharedValue, useDerivedValue } from 'react-native-reanimated';
 import { useState } from 'react';
+import { firestore } from '../firebase';
 
 type Props = {
   post: PostInfoParam;
-  users: MemberInfoParam[];
   currentPage: SharedValue<number>;
   loading: boolean;
 };
 
-export const Post = ({ post, users, currentPage, loading }: Props) => {
-  const [selectedImages, setSelectedImages] = useState<{ uri: string }[]>([]); //현재 ImageWindow에 표시되고 있는 memberInfo.Images 리스트
+export const Post = ({ post, currentPage, loading }: Props) => {
+  const [selectedImages, setSelectedImages] = useState<string[]>([]); //현재 ImageWindow에 표시되고 있는 memberInfo.Images 리스트
+  const [users, setUsers] = useState<MemberInfoParam[]>([]);
 
-  useDerivedValue(() => {
+  //console.log(users);
+  useDerivedValue(async () => {
     //useDerivedValue(() => { ... }, [currentPage]) currentPage 값이 변할 때마다 내부 로직 실행됨
     const updateSelectedImages = runOnJS(setSelectedImages);
 
-    const firstUser = users?.[0];
+    const chunkSize = 10;
+    const fetchedUsers: MemberInfoParam[] = [];
+
+    for (let i = 0; i < post.userList.length; i += chunkSize) {
+      const chunk = post.userList.slice(i, i + chunkSize);
+      const usersSnap = await firestore()
+        .collection('users')
+        .where(firestore.FieldPath.documentId(), 'in', chunk)
+        .get();
+      usersSnap.docs.forEach(doc => {
+        fetchedUsers.push({ ...doc.data() } as MemberInfoParam);
+      });
+    }
+    setUsers(fetchedUsers);
+    const firstUser = fetchedUsers[0];
 
     if (firstUser) {
-      updateSelectedImages(firstUser.images);
+      setSelectedImages(firstUser.images);
     } else {
       updateSelectedImages([]);
     }
@@ -46,6 +62,8 @@ export const Post = ({ post, users, currentPage, loading }: Props) => {
           {post.userList.map((id: string, index: number) => {
             const user = users.find(u => u.id === id);
             if (user === undefined) {
+              //console.log(users);
+              //console.log(`❌ 유저 데이터를 찾지 못한 ID: ${id}`);
               return (
                 <Text key={`missing-user-${index}`}>
                   사용자가 불려오지 못함.
