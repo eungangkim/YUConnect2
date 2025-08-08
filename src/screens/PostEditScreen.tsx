@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
+import { Text, TouchableOpacity, View } from 'react-native';
+
 
 import PostForm from '../components/PostForm';
 import { PostInfoParam } from '../types/postInfo';
 import { RootStackParamList } from '../types/navigation';
+import style from "../styles/screens/PostEditScreen";
+import { firestore } from '../firebase';
 
 type PostEditRouteProp = RouteProp<RootStackParamList, 'PostEdit'>;
 
@@ -24,7 +28,24 @@ const PostEditScreen = () => {
   useEffect(() => {
     setPost(route.params.post); // 의존성 배열에 count 없으면 계속 호출됨
   }, []);
-  return <PostForm post={post} setPost={setPost}></PostForm>;
+  return (
+    <View>
+      <PostForm post={post} setPost={setPost}></PostForm>
+      <TouchableOpacity style={style.saveButton} onPress={()=>savePostToFirestore(post)}>
+        <Text>저장하기</Text>
+      </TouchableOpacity>
+    </View>
+  );
 };
+
+async function savePostToFirestore(post: PostInfoParam) {
+  try {
+    const postRef = firestore().collection('posts').doc(post.id);
+
+    await postRef.set(post);
+  } catch (error) {
+    console.error('Firestore 저장 중 오류 발생:', error);
+  }
+}
 
 export default PostEditScreen;
