@@ -20,7 +20,7 @@ const RegisterScreen = () => {
     email: '',
     tel: '',
     birth: '',
-    images: [{ uri: '' }],
+    images: [],
     mbti: '',
     interest: { interests: {}, detailedInterests: {} },
     forLove: false,

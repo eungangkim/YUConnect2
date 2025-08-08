@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Switch,
-} from 'react-native';
+import { View, Text, TextInput, Switch } from 'react-native';
 import Slider from '@react-native-community/slider';
 
 import { PostInfoParam } from '../types/postInfo';
@@ -18,10 +13,11 @@ type Props = {
 export default function PostForm({ post, setPost }: Props) {
   // 필드별 업데이트 헬퍼
   const setField = (field: keyof PostInfoParam, value: any) => {
-    setPost(prev => ({ ...prev, [field]: value }));
+    if (post && setPost) {
+      setPost(prev => (prev ? { ...prev, [field]: value } : prev));
+    }
   };
-
-  return (
+  return post ? (
     <View>
       <Text>제목</Text>
       <TextInput
@@ -53,10 +49,12 @@ export default function PostForm({ post, setPost }: Props) {
         maximumValue={10}
         step={1}
         value={post.maxUserCount}
-        onValueChange={(val)=>setField('maxUserCount',val)}
+        onValueChange={val => setField('maxUserCount', val)}
       />
+    </View>
+  ) : (
+    <View>
+      <Text>잘못된 PostForm 접근입니다.</Text>
     </View>
   );
 }
-
-

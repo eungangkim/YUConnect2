@@ -19,7 +19,7 @@ export default function MemberForm({ member, setMember,password,setPassword }: P
   const setImageUri = (uri: string) => {
     setMember(prev => ({
       ...prev,
-      images: [{ uri }],
+      images: [uri],
     }));
   };
 
@@ -74,7 +74,7 @@ export default function MemberForm({ member, setMember,password,setPassword }: P
       <Text>대표 이미지 URI</Text>
       <TextInput
         style={styles.input}
-        value={member.images[0]?.uri}
+        value={member.images[0]??"없음"}
         onChangeText={text => setImageUri(text)}
         placeholder="https://example.com/image.jpg"
       />

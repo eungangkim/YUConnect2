@@ -1,3 +1,5 @@
+import { PostInfoParam } from "./postInfo";
+
 export type RootStackParamList = {
     Home:undefined
     Example:undefined
@@ -10,4 +12,7 @@ export type RootStackParamList = {
     UserInfo:undefined
     알림:undefined
     게시글작성:undefined
+    PostList:undefined
+    PostEdit:{post:PostInfoParam}
+    SinglePost:{post:PostInfoParam}
 }

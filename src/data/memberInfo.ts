@@ -11,7 +11,7 @@ export function memberInfo(
     email:string, //이메일
     tel:string,   //전화번호
     birth:string, //생년월일
-    images:{uri:string}[], //자신을 표현하는 이미지
+    images:string[], //자신을 표현하는 이미지
     mbti:string,  //mbti
     interest:UserInterestProfile, //관심사
     forLove:boolean,  //연애가 목적
