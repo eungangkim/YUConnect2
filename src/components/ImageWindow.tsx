@@ -9,10 +9,12 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
+import { Icon } from 'react-native-vector-icons/Icon';
 
+import style from '../styles/components/ImageWindow';
 const { width, height } = Dimensions.get('window');
 
-function ImageWindow({ images }: { images: {uri:string}[] }) {
+function ImageWindow({ images }: { images: { uri: string }[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -28,10 +30,16 @@ function ImageWindow({ images }: { images: {uri:string}[] }) {
   };
   if (!images || images.length === 0) {
     return (
-      <View style={styles.container}>
+      <View style={[style.container, { width, height: height * 0.5 }]}>
         <Image
           source={require('../assets/noImage.jpg')} // 없는 경우 기본 이미지
-          style={styles.image}
+          style={[
+            style.image,
+            {
+              width: width * 0.8,
+              height: height * 0.4,
+            },
+          ]}
           resizeMode="contain"
         />
       </View>
@@ -39,59 +47,36 @@ function ImageWindow({ images }: { images: {uri:string}[] }) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[style.container, { width, height: height * 0.5 }]}>
       <Image
         source={
           typeof images[currentIndex] === 'string'
             ? { uri: images[currentIndex] }
             : images[currentIndex]
         }
-        style={styles.image}
+        style={[
+            style.image,
+            {
+              width: width * 0.8,
+              height: height * 0.4,
+            },
+          ]}
         resizeMode="cover"
       />
 
-      <View style={styles.buttons}>
+      <View style={style.buttons}>
         <TouchableOpacity onPress={prevImage}>
-          <Image
-            source={require('../assets/prev.png')}
-            style={{ width: 50, height: 50 }}
-          />
+          <Icon name="arrow-back-outline" size={20} />
         </TouchableOpacity>
         <Text style={{ fontSize: 25 }}>
           {currentIndex + 1}/{images.length}
         </Text>
         <TouchableOpacity onPress={nextImage}>
-          <Image
-            source={require('../assets/next.png')}
-            style={{ width: 50, height: 50 }}
-          />
+          <Icon name="arrow-forward-outline" size={20} />
         </TouchableOpacity>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width,
-    height: height * 0.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 0,
-  },
-  image: {
-    width: width * 0.8,
-    height: height * 0.4,
-    borderRadius: 10,
-    borderWidth: 2,
-  },
-  buttons: {
-    flexDirection: 'row',
-    marginTop: 20,
-    width: '60%',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-});
 
 export default ImageWindow;
