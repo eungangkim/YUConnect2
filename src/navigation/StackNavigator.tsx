@@ -12,6 +12,7 @@ import RegisterScreen from '../screens/RegisterScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import PostCreationScreen from '../screens/PostCreationScreen';
 import PostListScreen from '../screens/PostListScreen';
+import PostEditScreen from '../screens/PostEditScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -40,6 +41,7 @@ const StackNavigator = () => (
       />
       <Stack.Screen name="게시글작성" component={PostCreationScreen}/>
       <Stack.Screen name="PostList" component={PostListScreen}/>
+      <Stack.Screen name='PostEdit' component={PostEditScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );

@@ -4,12 +4,16 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { auth, firestore } from '../firebase';
 import { PostInfoParam } from '../types/postInfo';
 import style from "../styles/components/PostList";
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/navigation';
 
 const PostList = () => {
   const [posts, setPosts] = useState<PostInfoParam[]>([]);
   const [loading, setLoading] = useState(true);
   const currentUser = auth().currentUser;
 
+  const navigation =useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   useEffect(() => {
     if (!currentUser) return;
 
@@ -50,8 +54,8 @@ const PostList = () => {
 
   return (
     <ScrollView style={style.container} nestedScrollEnabled={true}>
-      {posts.map(post => (
-        <TouchableOpacity key={post.id} style={style.post}>
+      {posts.map((post:PostInfoParam) => (
+        <TouchableOpacity key={post.id} style={style.post} onPress={()=>navigation.navigate("PostEdit",{post})}>
           <Text>제목: {post.title}</Text>
           <Text>내용: {post.description}</Text>
           {/* post 데이터에 맞게 필드 표시 */}
