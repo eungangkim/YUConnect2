@@ -125,8 +125,6 @@ export const MatchingScreen = () => {
               <View key={post.id} style={style.pageView}>
                 <Post
                   post={post}
-                  currentPage={currentPage}
-                  loading={loading}
                 ></Post>
               </View>
             );

@@ -14,4 +14,5 @@ export type RootStackParamList = {
     게시글작성:undefined
     PostList:undefined
     PostEdit:{post:PostInfoParam}
+    SinglePost:{post:PostInfoParam}
 }

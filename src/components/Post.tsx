@@ -12,11 +12,9 @@ import { firestore } from '../firebase';
 
 type Props = {
   post: PostInfoParam;
-  currentPage: SharedValue<number>;
-  loading: boolean;
 };
 
-export const Post = ({ post, currentPage, loading }: Props) => {
+export const Post = ({ post}: Props) => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]); //현재 ImageWindow에 표시되고 있는 memberInfo.Images 리스트
   const [users, setUsers] = useState<MemberInfoParam[]>([]);
 
@@ -46,7 +44,7 @@ export const Post = ({ post, currentPage, loading }: Props) => {
     } else {
       updateSelectedImages([]);
     }
-  }, [currentPage]);
+  }, []);
   return (
     <View
       style={[
