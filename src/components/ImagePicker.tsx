@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { View, Button, Image, StyleSheet, Text } from 'react-native';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
-import { uploadImageToStoarage } from '../firebase/StorageFunctions';
+import {
+  deleteImageFromStorage,
+  uploadImageToStoarage,
+} from '../firebase/StorageFunctions';
 
 import ImageWindow from './ImageWindow';
 import { MemberInfoParam } from '../types/memberInfo';
 import { PostInfoParam } from '../types/postInfo';
-import style from "../styles/components/ImagePicker";
+import style from '../styles/components/ImagePicker';
 
 type Props = {
   images: string[];
@@ -29,7 +32,8 @@ export default function ImagePicker({ images, setMember, setPost }: Props) {
       }
     });
   };
-  const removeImage = (uri: string) => {
+  const removeImage = async (uri: string) => {
+    await deleteImageFromStorage(uri);
     if (setMember) {
       setMember(prev => ({
         ...prev,
@@ -45,14 +49,15 @@ export default function ImagePicker({ images, setMember, setPost }: Props) {
   };
   const setImageUri = async (uri: string) => {
     try {
-      const path = await uploadImageToStoarage(uri, 'profileImages');
       if (setMember) {
+        const path = await uploadImageToStoarage(uri, 'profileImages');
         setMember(prev => ({
           ...prev,
           images: [...prev.images, path], // Storage URL 저장
         }));
       }
       if (setPost) {
+        const path = await uploadImageToStoarage(uri, 'postImages');
         setPost(prev => ({
           ...prev,
           images: [...prev.images, path], // Storage URL 저장
@@ -71,5 +76,3 @@ export default function ImagePicker({ images, setMember, setPost }: Props) {
     </View>
   );
 }
-
-

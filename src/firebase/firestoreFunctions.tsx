@@ -81,6 +81,7 @@ export async function addPostToFirestore(post: PostInfoParam) {
   }
 }
 
+
 export async function savePostToFirestore(post: PostInfoParam) {
   try {
     const postRef = firestore().collection('posts').doc(post.id);
@@ -88,5 +89,13 @@ export async function savePostToFirestore(post: PostInfoParam) {
     await postRef.set(post);
   } catch (error) {
     console.error('Firestore 저장 중 오류 발생:', error);
+  }
+}
+
+export async function deletePostFromFirestore(post:PostInfoParam) {
+  try{
+    await firestore().collection('posts').doc(post.id).delete();
+  }catch(error){
+    console.error("Firestore 삭제 중 오류 발생:",error);
   }
 }

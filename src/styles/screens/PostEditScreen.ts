@@ -1,6 +1,9 @@
 import { StyleSheet } from "react-native";
 
 const PostEditScreenStyle=StyleSheet.create({
+    container:{
+        flex:1,
+    },
     saveButton:{
         borderWidth:1,
         borderRadius:2,

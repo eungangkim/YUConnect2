@@ -14,7 +14,7 @@ type Props = {
   post: PostInfoParam;
 };
 
-export const Post = ({ post}: Props) => {
+export const Post = ({ post }: Props) => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]); //현재 ImageWindow에 표시되고 있는 memberInfo.Images 리스트
   const [users, setUsers] = useState<MemberInfoParam[]>([]);
 
@@ -37,6 +37,7 @@ export const Post = ({ post}: Props) => {
       });
     }
     setUsers(fetchedUsers);
+    /*
     const firstUser = fetchedUsers[0];
 
     if (firstUser) {
@@ -44,6 +45,8 @@ export const Post = ({ post}: Props) => {
     } else {
       updateSelectedImages([]);
     }
+      */
+    setSelectedImages(post.images);
   }, []);
   return (
     <View
@@ -79,7 +82,9 @@ export const Post = ({ post}: Props) => {
             );
           })}
         </ScrollView>
-        <Text>{post.title}    인원수 :{post.userList.length}/{post.maxUserCount}</Text>
+        <Text>
+          {post.title} 인원수 :{post.userList.length}/{post.maxUserCount}
+        </Text>
         <ImageWindow images={selectedImages} />
         <ScrollView
           style={[

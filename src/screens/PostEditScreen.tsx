@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { Text, TouchableOpacity, View } from 'react-native';
-
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 import PostForm from '../components/PostForm';
 import { PostInfoParam } from '../types/postInfo';
 import { RootStackParamList } from '../types/navigation';
-import style from "../styles/screens/PostEditScreen";
+import style from '../styles/screens/PostEditScreen';
 import { savePostToFirestore } from '../firebase/firestoreFunctions';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type PostEditRouteProp = RouteProp<RootStackParamList, 'PostEdit'>;
 
 const PostEditScreen = () => {
   const route = useRoute<PostEditRouteProp>();
 
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [post, setPost] = useState<PostInfoParam>({
     id: '', //key 값 (고유값)   -> firestore 자동생성
     authorUid: '', //
@@ -24,20 +26,25 @@ const PostEditScreen = () => {
     userList: [], //참여된 사용자 배열   -> ''[] 사용자들의 id 저장
     chatRoute: '', //게시글에 참여하면 참가할 수 있는 대화창 주소
     maxUserCount: 2,
+    images: [],
   });
   useEffect(() => {
     setPost(route.params.post); // 의존성 배열에 count 없으면 계속 호출됨
   }, []);
   return (
-    <View>
+    <ScrollView style={style.container}>
       <PostForm post={post} setPost={setPost}></PostForm>
-      <TouchableOpacity style={style.saveButton} onPress={()=>savePostToFirestore(post)}>
+      <TouchableOpacity
+        style={style.saveButton}
+        onPress={() => {
+          savePostToFirestore(post);
+          navigation.goBack();
+        }}
+      >
         <Text>저장하기</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
-
-
 
 export default PostEditScreen;
