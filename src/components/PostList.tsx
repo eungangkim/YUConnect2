@@ -1,11 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  Modal,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -14,6 +8,7 @@ import { auth, firestore } from '../firebase';
 import { PostInfoParam } from '../types/postInfo';
 import style from '../styles/components/PostList';
 import { RootStackParamList } from '../types/navigation';
+import { deletePostFromFirestore } from '../firebase/firestoreFunctions';
 
 type Rect = {
   x: number;
@@ -60,7 +55,7 @@ const PostList = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [currentUser]);
+  }, [currentUser,posts]);
 
   if (loading) {
     return <Text>게시글 불러오는 중...</Text>;
@@ -107,11 +102,19 @@ const PostList = () => {
                     onPress={() => {
                       // Edit 액션 처리
                       setModalVisibleFor(null);
-                      navigation.navigate("PostEdit",{post})
+                      navigation.navigate('PostEdit', { post });
                     }}
                     style={style.modalButton}
                   >
                     <Text style={style.modalButtonText}>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      deletePostFromFirestore(post);
+                    }}
+                    style={style.modalButton}
+                  >
+                    <Text style={style.modalButtonText}>Delete</Text>
                   </TouchableOpacity>
                   {/* 추가 버튼들 필요하면 여기 */}
                 </View>

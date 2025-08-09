@@ -3,25 +3,27 @@ import { View, Text, TextInput, Switch } from 'react-native';
 import { MemberInfoParam } from '../types/memberInfo';
 import Interest from './Interest';
 import { styles } from '../styles/components/MemberForm';
+import ImagePicker from './ImagePicker';
+import ImageWindow from './ImageWindow';
 type Props = {
   member: MemberInfoParam;
   setMember: React.Dispatch<React.SetStateAction<MemberInfoParam>>;
-  password:string;
+  password: string;
   setPassword: React.Dispatch<React.SetStateAction<string>>;
 };
-export default function MemberForm({ member, setMember,password,setPassword }: Props) {
+export default function MemberForm({
+  member,
+  setMember,
+  password,
+  setPassword,
+}: Props) {
   // 필드별 업데이트 헬퍼
   const setField = (field: keyof MemberInfoParam, value: any) => {
     setMember(prev => ({ ...prev, [field]: value }));
   };
 
   // images 배열 첫 번째 uri 업데이트 예시
-  const setImageUri = (uri: string) => {
-    setMember(prev => ({
-      ...prev,
-      images: [uri],
-    }));
-  };
+  
 
   return (
     <View>
@@ -72,13 +74,8 @@ export default function MemberForm({ member, setMember,password,setPassword }: P
       />
 
       <Text>대표 이미지 URI</Text>
-      <TextInput
-        style={styles.input}
-        value={member.images[0]??"없음"}
-        onChangeText={text => setImageUri(text)}
-        placeholder="https://example.com/image.jpg"
-      />
-
+      <ImagePicker images={member.images} setMember={setMember}></ImagePicker>
+      
       <Text>MBTI</Text>
       <TextInput
         style={styles.input}
