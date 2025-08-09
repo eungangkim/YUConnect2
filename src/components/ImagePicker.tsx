@@ -4,7 +4,7 @@ import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import ImageWindow from './ImageWindow';
 import { MemberInfoParam } from '../types/memberInfo';
 import { firestore } from '../firebase';
-import { uploadImageAsync } from '../firebase/StorageFunctions';
+import { uploadImageToStoarage } from '../firebase/StorageFunctions';
 
 type Props = {
   images: string[];
@@ -19,9 +19,8 @@ export default function ImagePicker({ images, setMember }: Props) {
       } else if (response.errorCode) {
         console.log('에러 발생:', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
-        const uri = response.assets[0].uri;
+        const uri = response.assets[0].uri; //ImagePicker가 자동으로 고유한 uri를 만듬
         if (uri) {
-            firestore()
           setImageUri(uri); // 배열 형태로
         }
       }
@@ -36,10 +35,10 @@ export default function ImagePicker({ images, setMember }: Props) {
   };
   const setImageUri = async (uri: string) => {
     try {
-    const downloadURL = await uploadImageAsync(uri, 'profileImages');
+    const path = await uploadImageToStoarage(uri, 'profileImages'); 
     setMember(prev => ({
       ...prev,
-      images: [...prev.images, downloadURL], // Storage URL 저장
+      images: [...prev.images, path], // Storage URL 저장
     }));
   } catch (err) {
     console.error('이미지 업로드 실패:', err);

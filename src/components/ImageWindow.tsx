@@ -12,6 +12,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import style from '../styles/components/ImageWindow';
+import { getDownloadURL } from '../firebase/StorageFunctions';
 const { width, height } = Dimensions.get('window');
 
 type Props = {
@@ -21,23 +22,30 @@ type Props = {
 
 function ImageWindow({ images, onRemove }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+
   useEffect(() => {
     setCurrentIndex(0);
+    async function fetchUrls() {
+      const urls = await Promise.all(images.map(path => getDownloadURL(path)));
+      setImageUrls(urls);
+    }
+    fetchUrls();
   }, [images]);
 
   const prevImage = () => {
-    setCurrentIndex(prev => (prev === 0 ? images.length - 1 : prev - 1));
+    setCurrentIndex(prev => (prev <= 0 ? images.length - 1 : prev - 1));
   };
 
   const nextImage = () => {
-    setCurrentIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+    setCurrentIndex(prev => (prev >= images.length - 1 ? 0 : prev + 1));
   };
 
   if (!images || images.length === 0) {
     return (
       <View style={[style.container, { width, height: height * 0.5 }]}>
         <Image
-           // 없는 경우 기본 이미지
+          // 없는 경우 기본 이미지
           style={[
             style.image,
             {
@@ -67,7 +75,7 @@ function ImageWindow({ images, onRemove }: Props) {
       <Image
         source={
           typeof images[currentIndex] === 'string'
-            ? { uri: images[currentIndex] }
+            ? { uri: imageUrls[currentIndex] }
             : require('../assets/noImage.jpg')
         }
         style={[
