@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
-import { View, Button, Image, StyleSheet } from 'react-native';
+import { View, Button, Image, StyleSheet, Text } from 'react-native';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import { uploadImageToStoarage } from '../firebase/StorageFunctions';
+
 import ImageWindow from './ImageWindow';
 import { MemberInfoParam } from '../types/memberInfo';
-import { firestore } from '../firebase';
-import { uploadImageToStoarage } from '../firebase/StorageFunctions';
+import { PostInfoParam } from '../types/postInfo';
+import style from "../styles/components/ImagePicker";
 
 type Props = {
   images: string[];
-  setMember: React.Dispatch<React.SetStateAction<MemberInfoParam>>;
+  setMember?: React.Dispatch<React.SetStateAction<MemberInfoParam>>;
+  setPost?: React.Dispatch<React.SetStateAction<PostInfoParam>>;
 };
 
-export default function ImagePicker({ images, setMember }: Props) {
+export default function ImagePicker({ images, setMember, setPost }: Props) {
   const pickImage = () => {
     launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, response => {
       if (response.didCancel) {
@@ -26,33 +29,47 @@ export default function ImagePicker({ images, setMember }: Props) {
       }
     });
   };
-
   const removeImage = (uri: string) => {
-    setMember(prev => ({
-      ...prev,
-      images: prev.images.filter(img => img !== uri), // uri 일치하는 것 제거
-    }));
+    if (setMember) {
+      setMember(prev => ({
+        ...prev,
+        images: prev.images.filter(img => img !== uri), // uri 일치하는 것 제거
+      }));
+    }
+    if (setPost) {
+      setPost(prev => ({
+        ...prev,
+        images: prev.images.filter(img => img !== uri), // uri 일치하는 것 제거
+      }));
+    }
   };
   const setImageUri = async (uri: string) => {
     try {
-    const path = await uploadImageToStoarage(uri, 'profileImages'); 
-    setMember(prev => ({
-      ...prev,
-      images: [...prev.images, path], // Storage URL 저장
-    }));
-  } catch (err) {
-    console.error('이미지 업로드 실패:', err);
-  }
+      const path = await uploadImageToStoarage(uri, 'profileImages');
+      if (setMember) {
+        setMember(prev => ({
+          ...prev,
+          images: [...prev.images, path], // Storage URL 저장
+        }));
+      }
+      if (setPost) {
+        setPost(prev => ({
+          ...prev,
+          images: [...prev.images, path], // Storage URL 저장
+        }));
+      }
+    } catch (err) {
+      console.error('이미지 업로드 실패:', err);
+    }
   };
   return (
-    <View style={styles.container}>
+    <View style={style.container}>
       <Button title="사진 선택" onPress={pickImage} />
-      {images.length > 0 && <ImageWindow images={images} onRemove={removeImage}/>}
+      {images.length > 0 && (
+        <ImageWindow images={images} onRemove={removeImage} />
+      )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  image: { width: 200, height: 200, borderRadius: 100, marginTop: 20 },
-});
+

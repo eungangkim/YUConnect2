@@ -61,6 +61,26 @@ export async function addUserToFirestore(user: MemberInfoParam, password: string
   }
 }
 
+export async function addPostToFirestore(post: PostInfoParam) {
+  try {
+    // 1. 문서 참조 생성 (자동 ID 포함)
+    const postRef = firestore().collection('posts').doc();
+
+    // 2. post 객체에 ID 포함
+    const postWithId = {
+      ...post,
+      id: postRef.id,
+    };
+
+    // 3. 저장
+    await postRef.set(postWithId);
+
+    console.log('게시글이 Firestore에 저장되었습니다.');
+  } catch (error) {
+    console.error('Firestore 저장 중 오류 발생:', error);
+  }
+}
+
 export async function savePostToFirestore(post: PostInfoParam) {
   try {
     const postRef = firestore().collection('posts').doc(post.id);

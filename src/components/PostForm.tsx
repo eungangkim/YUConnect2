@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, TextInput, Switch } from 'react-native';
+import { View, Text, TextInput, Switch, ScrollView } from 'react-native';
 import Slider from '@react-native-community/slider';
 
 import { PostInfoParam } from '../types/postInfo';
 import { styles } from '../styles/components/PostForm';
+import ImagePicker from './ImagePicker';
 
 type Props = {
   post: PostInfoParam;
@@ -18,21 +19,27 @@ export default function PostForm({ post, setPost }: Props) {
     }
   };
   return post ? (
-    <View>
+    <View style={styles.container}>
       <Text>제목</Text>
       <TextInput
-        style={styles.input}
+        style={styles.title}
         value={post.title}
         onChangeText={val => setField('title', val)}
         placeholder="제목"
+        numberOfLines={3}
       />
       <Text>내용</Text>
       <TextInput
-        style={styles.input}
+        style={styles.description}
         value={post.description}
         onChangeText={val => setField('description', val)}
         placeholder="여기에 내용을 입력하세요."
+        multiline={true}
       />
+      
+      <Text>대표 이미지 URI</Text>
+      <ImagePicker images={post.images} setPost={setPost}></ImagePicker>
+
       <Text>연애 목적</Text>
       <Switch
         value={post.forLove}

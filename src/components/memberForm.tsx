@@ -75,6 +75,7 @@ export default function MemberForm({
 
       <Text>대표 이미지 URI</Text>
       <ImagePicker images={member.images} setMember={setMember}></ImagePicker>
+      
       <Text>MBTI</Text>
       <TextInput
         style={styles.input}
