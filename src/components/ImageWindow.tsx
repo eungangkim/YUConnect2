@@ -22,7 +22,7 @@ type Props = {
 function ImageWindow({ images, onRemove }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   useEffect(() => {
-    setCurrentIndex(currentIndex+1);
+    setCurrentIndex(0);
   }, [images]);
 
   const prevImage = () => {
@@ -37,7 +37,7 @@ function ImageWindow({ images, onRemove }: Props) {
     return (
       <View style={[style.container, { width, height: height * 0.5 }]}>
         <Image
-          source={require('../assets/noImage.jpg')} // 없는 경우 기본 이미지
+           // 없는 경우 기본 이미지
           style={[
             style.image,
             {
@@ -48,13 +48,13 @@ function ImageWindow({ images, onRemove }: Props) {
           resizeMode="contain"
         />
         <View style={style.buttons}>
-          <TouchableOpacity onPress={prevImage}>
+          <TouchableOpacity>
             <Icon name="arrow-back-outline" size={20} />
           </TouchableOpacity>
           <Text style={{ fontSize: 25 }}>
             {currentIndex}/{images.length}
           </Text>
-          <TouchableOpacity onPress={nextImage}>
+          <TouchableOpacity>
             <Icon name="arrow-forward-outline" size={20} />
           </TouchableOpacity>
         </View>

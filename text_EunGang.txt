@@ -57,3 +57,4 @@
 
 2025년 8월 9일 
     -npm install react-native-image-picker
+    -npm install @react-native-firebase/storage
