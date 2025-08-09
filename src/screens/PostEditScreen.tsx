@@ -7,7 +7,7 @@ import PostForm from '../components/PostForm';
 import { PostInfoParam } from '../types/postInfo';
 import { RootStackParamList } from '../types/navigation';
 import style from "../styles/screens/PostEditScreen";
-import { firestore } from '../firebase';
+import { savePostToFirestore } from '../firebase/firestoreFunctions';
 
 type PostEditRouteProp = RouteProp<RootStackParamList, 'PostEdit'>;
 
@@ -38,14 +38,6 @@ const PostEditScreen = () => {
   );
 };
 
-async function savePostToFirestore(post: PostInfoParam) {
-  try {
-    const postRef = firestore().collection('posts').doc(post.id);
 
-    await postRef.set(post);
-  } catch (error) {
-    console.error('Firestore 저장 중 오류 발생:', error);
-  }
-}
 
 export default PostEditScreen;

@@ -79,7 +79,7 @@ export const Post = ({ post}: Props) => {
             );
           })}
         </ScrollView>
-
+        <Text>{post.title}    인원수 :{post.userList.length}/{post.maxUserCount}</Text>
         <ImageWindow images={selectedImages} />
         <ScrollView
           style={[

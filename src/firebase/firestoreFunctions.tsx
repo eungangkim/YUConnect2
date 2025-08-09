@@ -1,4 +1,10 @@
-import { firestore } from './index';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { MemberInfoParam } from '../types/memberInfo';
+import { auth, firestore } from './index';
+import { Alert } from 'react-native';
+import { getFCMToken } from './messageingSetup';
+import { RootStackParamList } from '../types/navigation';
+import { PostInfoParam } from '../types/postInfo';
 
 export async function getPosts() {
   try {
@@ -16,5 +22,51 @@ export async function getPosts() {
     return posts;
   } catch (error) {
     console.error('에러 발생:', error);
+  }
+}
+
+export async function addUserToFirestore(user: MemberInfoParam, password: string,navigation:NativeStackNavigationProp<RootStackParamList>  ) {
+  try {
+    if (!user.email || !password) {
+      Alert.alert('입력 오류', '이메일과 비밀번호를 모두 입력하세요.');
+      return;
+    }
+     if (password.length < 6) {
+      Alert.alert('비밀번호 오류', '비밀번호는 최소 6자 이상이어야 합니다.');
+      return;
+    }
+    const newUser = await auth().createUserWithEmailAndPassword(
+      user.email.trim(),
+      password,
+    );
+    Alert.alert('성공', '회원가입 완료! 자동 로그인 되었습니다.');
+    // 1. 문서 참조 생성 (자동 ID 포함)
+    const userRef = firestore().collection('users').doc(newUser.user.uid);
+
+    const newToken=getFCMToken();
+    
+    // 2. user 객체에 ID 포함
+    const userWithId = {
+      ...user,
+      id: userRef.id,
+      tokens:{...user.tokens,token:newToken}
+    };
+
+    // 3. 저장
+    await userRef.set(userWithId);
+    navigation.replace('Home');
+    console.log('회원정보가 Firestore에 저장되었습니다.');
+  } catch (error) {
+    console.error('Firestore 저장 중 오류 발생:', error);
+  }
+}
+
+export async function savePostToFirestore(post: PostInfoParam) {
+  try {
+    const postRef = firestore().collection('posts').doc(post.id);
+
+    await postRef.set(post);
+  } catch (error) {
+    console.error('Firestore 저장 중 오류 발생:', error);
   }
 }

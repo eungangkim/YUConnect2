@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
 const ImageWindowStyles = StyleSheet.create({
   container: {
@@ -17,6 +17,16 @@ const ImageWindowStyles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  deleteBtn: {
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical:4,
+  },
+  deleteText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
 });
 
 export default ImageWindowStyles;

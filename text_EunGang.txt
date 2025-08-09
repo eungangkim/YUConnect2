@@ -54,3 +54,6 @@
     -npm install --save-dev @types/axios
     -npm install -g firebase-tools
     -npm install --save-dev @types/express
+
+2025년 8월 9일 
+    -npm install react-native-image-picker
