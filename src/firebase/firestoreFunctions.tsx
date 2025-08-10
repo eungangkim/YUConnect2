@@ -11,7 +11,6 @@ export async function getPosts() {
     const postsSnapshot = await firestore().collection('posts').get();
 
     const posts = postsSnapshot.docs;
-    
 
     console.log('불러온 posts:', posts);
     if (posts.length >= 0) {
@@ -25,13 +24,25 @@ export async function getPosts() {
   }
 }
 
-export async function addUserToFirestore(user: MemberInfoParam, password: string,navigation:NativeStackNavigationProp<RootStackParamList>  ) {
+export async function getPostsWithUserId(id: string) {
+  const userPostsQuery = firestore()
+    .collection('posts')
+    .where('authorUid', '==', id);
+
+  return userPostsQuery;
+}
+
+export async function addUserToFirestore(
+  user: MemberInfoParam,
+  password: string,
+  navigation: NativeStackNavigationProp<RootStackParamList>,
+) {
   try {
     if (!user.email || !password) {
       Alert.alert('입력 오류', '이메일과 비밀번호를 모두 입력하세요.');
       return;
     }
-     if (password.length < 6) {
+    if (password.length < 6) {
       Alert.alert('비밀번호 오류', '비밀번호는 최소 6자 이상이어야 합니다.');
       return;
     }
@@ -43,13 +54,13 @@ export async function addUserToFirestore(user: MemberInfoParam, password: string
     // 1. 문서 참조 생성 (자동 ID 포함)
     const userRef = firestore().collection('users').doc(newUser.user.uid);
 
-    const newToken=getFCMToken();
-    
+    const newToken = getFCMToken();
+
     // 2. user 객체에 ID 포함
     const userWithId = {
       ...user,
       id: userRef.id,
-      tokens:{...user.tokens,token:newToken}
+      tokens: { ...user.tokens, token: newToken },
     };
 
     // 3. 저장
@@ -81,7 +92,6 @@ export async function addPostToFirestore(post: PostInfoParam) {
   }
 }
 
-
 export async function savePostToFirestore(post: PostInfoParam) {
   try {
     const postRef = firestore().collection('posts').doc(post.id);
@@ -92,10 +102,30 @@ export async function savePostToFirestore(post: PostInfoParam) {
   }
 }
 
-export async function deletePostFromFirestore(post:PostInfoParam) {
-  try{
+export async function deletePostFromFirestore(post: PostInfoParam) {
+  try {
     await firestore().collection('posts').doc(post.id).delete();
-  }catch(error){
-    console.error("Firestore 삭제 중 오류 발생:",error);
+  } catch (error) {
+    console.error('Firestore 삭제 중 오류 발생:', error);
+  }
+}
+
+export async function deleteUserFromFireStore(Uid: string) {
+  try {
+    await firestore().collection('users').doc(Uid).delete();
+    const postsSnap = await firestore()
+      .collection('posts')
+      .where('authorUid', '==', Uid)
+      .get();
+
+    // 3. 게시물 삭제
+    const batch = firestore().batch();
+    postsSnap.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+  } catch (error) {
+    console.error('Firestore 삭제 중 오류 발생:', error);
   }
 }

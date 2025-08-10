@@ -11,6 +11,7 @@ import {
   ScrollView,
 } from 'react-native-gesture-handler';
 import UserInfo from '../components/UserInfo';
+import { deleteUserFromFireStore } from '../firebase/firestoreFunctions';
 type Props = NativeStackScreenProps<RootStackParamList, 'UserInfo'>;
 
 function UserInfoScreen({ navigation }: Props) {
@@ -31,7 +32,16 @@ function UserInfoScreen({ navigation }: Props) {
 
       <View style={style.logout}>
         {user ? (
-          <Button title="로그아웃" onPress={handleLogout} />
+          <View>
+            <Button
+              title="회원탈퇴"
+              onPress={() => {
+                deleteUserFromFireStore(user.uid);
+                navigation.replace('Login');
+              }}
+            />
+            <Button title="로그아웃" onPress={handleLogout} />
+          </View>
         ) : (
           <Button title="로그인" onPress={() => navigation.replace('Login')} />
         )}
