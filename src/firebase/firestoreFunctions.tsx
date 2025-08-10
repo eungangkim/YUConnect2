@@ -112,20 +112,39 @@ export async function deletePostFromFirestore(post: PostInfoParam) {
 
 export async function deleteUserFromFireStore(Uid: string) {
   try {
+    const user = auth().currentUser;
+
+    if (!user) {
+      throw new Error('현재 로그인된 사용자가 없습니다.');
+    }
+
+    // [1] Firestore: 유저 문서 삭제
     await firestore().collection('users').doc(Uid).delete();
+
+    // [2] Firestore: 해당 유저의 게시물 전부 삭제
     const postsSnap = await firestore()
       .collection('posts')
-      .where('authorUid', '==', Uid)
+      .where('userId', '==', Uid)
       .get();
 
-    // 3. 게시물 삭제
     const batch = firestore().batch();
     postsSnap.docs.forEach(doc => {
       batch.delete(doc.ref);
     });
-
     await batch.commit();
-  } catch (error) {
-    console.error('Firestore 삭제 중 오류 발생:', error);
+
+    console.log(`유저(${Uid}) 데이터 및 게시물 삭제 완료`);
+
+    // [3] Firebase Auth: 계정 삭제
+    await user.delete();
+    console.log(`유저(${Uid}) Authentication 계정 삭제 완료`);
+
+  } catch (error: any) {
+    if (error.code === 'auth/requires-recent-login') {
+      console.error('계정 삭제를 위해 최근 로그인 필요');
+      // 이 경우, reauthenticateWithCredential 사용해야 함
+    } else {
+      console.error('탈퇴 처리 중 오류:', error);
+    }
   }
 }
