@@ -1,6 +1,6 @@
 // screens/UserInfoScreen.tsx
 import React from 'react';
-import { View, Text, Button, Image } from 'react-native';
+import { View, Text, Button, Image, Alert } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -37,6 +37,7 @@ function UserInfoScreen({ navigation }: Props) {
               title="회원탈퇴"
               onPress={() => {
                 deleteUserFromFireStore(user.uid);
+                Alert.alert('회원 탈퇴가 완료되었습니다.');
                 navigation.replace('Login');
               }}
             />
