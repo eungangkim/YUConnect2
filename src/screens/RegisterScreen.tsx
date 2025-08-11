@@ -23,7 +23,7 @@ const RegisterScreen = () => {
     interest: { interests: {}, detailedInterests: {} },
     forLove: false,
     forFriendship: false,
-    MannerDegree: 50,
+    mannerDegree: 50,
     tokens: [],
   });
   const [password, setPassword] = useState('');

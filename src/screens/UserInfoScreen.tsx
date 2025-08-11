@@ -11,7 +11,7 @@ import {
   ScrollView,
 } from 'react-native-gesture-handler';
 import UserInfo from '../components/UserInfo';
-import { deleteUserFromFireStore } from '../firebase/firestoreFunctions';
+import {  deleteUserFromFireStore } from '../firebase/firestoreFunctions';
 type Props = NativeStackScreenProps<RootStackParamList, 'UserInfo'>;
 
 function UserInfoScreen({ navigation }: Props) {

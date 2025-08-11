@@ -132,7 +132,7 @@ export async function deleteUserFromFireStore(Uid: string) {
     if (!postsSnap.empty) {
       const batch = firestore().batch();
       postsSnap.docs.forEach(doc => {
-        console.log('삭제할 문서 ID:', doc.id,"\n삭제할 문서의 저자:",user.uid," ,",Uid);
+        console.log('삭제할 문서 ID:', doc.id);
         batch.delete(doc.ref);
       });
       await batch.commit();
@@ -140,8 +140,6 @@ export async function deleteUserFromFireStore(Uid: string) {
     } else {
       console.log('해당 유저의 게시물이 없습니다.');
     }
-    // [3] Firebase Auth: 계정 삭제
-    await user.delete();
   } catch (error: any) {
     if (error.code === 'auth/requires-recent-login') {
       console.error('계정 삭제를 위해 최근 로그인 필요');
@@ -149,5 +147,44 @@ export async function deleteUserFromFireStore(Uid: string) {
     } else {
       console.error('탈퇴 처리 중 오류:', error);
     }
+  }
+}
+
+export async function deletePostsWithInvalidUser() {
+  try {
+    console.log('유효하지 않은 유저 UID를 가진 게시물 삭제 시작');
+
+    // 1. 모든 유저 UID 가져오기
+    const usersSnap = await firestore().collection('users').get();
+    const validUserIds = new Set(usersSnap.docs.map(doc => doc.id)); // 유저 문서 ID 기준
+
+    console.log(`현재 유저 수: ${validUserIds.size}`);
+
+    // 2. 모든 게시물 가져오기
+    const postsSnap = await firestore().collection('posts').get();
+
+    let deleteCount = 0;
+    const batch = firestore().batch();
+
+    postsSnap.docs.forEach(doc => {
+      const postData = doc.data();
+      const authorId = postData.authorUid; // 🔹 실제 필드명 맞춰야 함 (userId, uid 등)
+
+      if (!validUserIds.has(authorId)) {
+        console.log(`삭제 대상: ${doc.id}, authorId: ${authorId}`);
+        batch.delete(doc.ref);
+        deleteCount++;
+      }
+    });
+
+    // 3. 삭제 실행
+    if (deleteCount > 0) {
+      await batch.commit();
+      console.log(`삭제 완료: ${deleteCount}개의 게시물 삭제`);
+    } else {
+      console.log('삭제할 게시물이 없습니다.');
+    }
+  } catch (error) {
+    console.error('관리자 게시물 정리 중 오류 발생:', error);
   }
 }

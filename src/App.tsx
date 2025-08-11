@@ -17,7 +17,8 @@ import {
   saveFCMTokenToFirestore,
 } from './firebase/messageingSetup';
 import { members, posts } from './data/data';
-import { firestore,messaging } from './firebase';
+import { firestore, messaging } from './firebase';
+import { deletePostsWithInvalidUser } from './firebase/firestoreFunctions';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -26,14 +27,17 @@ function App() {
     requestUserPermission();
     getFCMToken();
     registerMessageHandler();
-
     // 🔁 토큰 변경 감지 & 업데이트
     const unsubscribe = messaging().onTokenRefresh(newToken => {
       console.log('🔄 토큰 갱신됨:', newToken);
       saveFCMTokenToFirestore(newToken); // Firestore나 서버에 저장
     });
-    messaging().onMessage(async remoteMessage => onMessageReceived(remoteMessage));  	// 활성 상태 및 포그라운드 상태일때 FCM 메시지 수신
+    messaging().onMessage(async remoteMessage =>
+      onMessageReceived(remoteMessage),
+    ); // 활성 상태 및 포그라운드 상태일때 FCM 메시지 수신
     
+    //deletePostsWithInvalidUser();
+
     /*
     const addDocs = async () => {
       for (const data of posts) {
@@ -48,8 +52,8 @@ function App() {
       console.log('문서 추가 완료');
     };
     addDocs();
-    */
-   /*
+  */
+    /*
    const addUsers = async () => {
       for (const data of members) {
         const docRef = await firestore().collection('users').add(data);

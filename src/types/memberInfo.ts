@@ -1,5 +1,5 @@
 export type MemberInfoParam = {
-  id: string; //key 값 (고유 번호)
+  id: string; //key 값 (고유번호)
   name: string; //사용자의 이름
   sex: boolean; //성별
   email: string; //이메일
@@ -10,8 +10,8 @@ export type MemberInfoParam = {
   interest: UserInterestProfile; //관심사
   forLove: boolean; //연애가 목적
   forFriendship: boolean; //친구가 목적
-  MannerDegree:number; //매너 온도
-  tokens:{token:string}[];
+  mannerDegree: number; //매너 온도 0~100
+  tokens: string[]; //사용자의 디바이스 토큰배열
 };
 
 export type UserInterestProfile = {
