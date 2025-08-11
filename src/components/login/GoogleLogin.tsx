@@ -36,32 +36,36 @@ export default function GoogleLogin({
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
+      console.log('Google 로그인 시작');
+
       const userInfo = await GoogleSignin.signIn();
       const idToken = userInfo.data?.idToken;
 
       if (!idToken) throw new Error('No ID token found');
 
+
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
       const userCredential = await auth().signInWithCredential(
         googleCredential,
-      );
+      );  
+
       const user = userCredential.user;
 
-      // 4. Firestore에서 해당 UID 문서 확인
       const userDoc = await firestore().collection('users').doc(user.uid).get();
 
-      // 5. 문서가 없으면 최초 가입 → 저장
-      if (!userDoc.exists) {
+      if (!userDoc.exists()) {
+        console.log('최초 가입: Firestore에 저장 시작');
         await firestore().collection('users').doc(user.uid).set({
-          uid: user.uid,
+          id: user.uid,
           email: user.email,
           displayName: user.displayName,
           photoURL: user.photoURL,
           createdAt: firestore.FieldValue.serverTimestamp(),
         });
+      } else {
+        console.log('이미 가입된 사용자');
       }
-      console.log('최초 가입 - Firestore에 사용자 정보 저장 완료');
       navigation.replace('Home');
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
