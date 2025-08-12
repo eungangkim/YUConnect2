@@ -34,18 +34,18 @@ export async function getPostsWithUserId(id: string) {
 }
 
 export async function addUserToFirestore(
-  userCredential: FirebaseAuthTypes.UserCredential,
+  user: FirebaseAuthTypes.User | null,
   member:MemberInfoParam,
 ) {
   try {
     // 1. 문서 참조 생성 (자동 ID 포함)
-    const userRef = firestore().collection('users').doc(userCredential.user.uid);
+    const userRef = firestore().collection('users').doc(user?.uid);
 
     const newToken = getFCMToken();
 
     // 2. user 객체에 ID 포함
     const userWithId = {
-      member,
+      ...member,
       id: userRef.id,
       tokens: { token: newToken },
     };
@@ -126,6 +126,7 @@ export async function deleteUserFromFireStore(Uid: string) {
     } else {
       console.log('해당 유저의 게시물이 없습니다.');
     }
+    await user.delete();
   } catch (error: any) {
     if (error.code === 'auth/requires-recent-login') {
       console.error('계정 삭제를 위해 최근 로그인 필요');

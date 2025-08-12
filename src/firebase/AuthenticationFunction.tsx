@@ -2,6 +2,21 @@ import { auth } from '.';
 import { MemberInfoParam } from '../types/memberInfo';
 import { addUserToFirestore } from './firestoreFunctions';
 
+export async function signUpWithGoogleEmail(
+  member: MemberInfoParam,
+  password: string,
+) {
+  try {
+    // 1) 계정 생성
+    const user = await auth().currentUser;
+
+    addUserToFirestore(user, member);
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function signUpWithEmail(
   member: MemberInfoParam,
   password: string,
@@ -12,7 +27,7 @@ export async function signUpWithEmail(
       member.email,
       password,
     );
-    addUserToFirestore(userCredential, member);
+    addUserToFirestore(userCredential.user, member);
     // 2) 이메일 인증 메일 발송
     await userCredential.user.sendEmailVerification();
 

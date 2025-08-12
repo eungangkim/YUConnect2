@@ -44,15 +44,18 @@ export default function MemberForm({
         placeholder="example@mail.com"
         keyboardType="email-address"
       />
-      <Text>비밀번호(최소6자리)</Text>
-      <TextInput
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        placeholder="password"
-        keyboardType="visible-password"
-      />
-
+      {password !== 'false' && (
+        <View>
+          <Text>비밀번호(최소6자리)</Text>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="password"
+            keyboardType="visible-password"
+          />
+        </View>
+      )}
       <Text>전화번호</Text>
       <TextInput
         style={styles.input}

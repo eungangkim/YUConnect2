@@ -91,7 +91,7 @@ export default function EmailLogin({ loading, setLoading }: Props) {
       <View style={{ height: 10 }} />
       <Button
         title={loading ? '처리 중...' : '회원가입'}
-        onPress={() => navigation.navigate('Register')}
+        onPress={() => navigation.navigate('Register',{})}
         disabled={loading}
       />
     </View>
