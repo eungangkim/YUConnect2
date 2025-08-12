@@ -15,9 +15,7 @@ const PostCreationScreen = () => {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const author = auth().currentUser;
-  if (!author) {
-    return <Text>!!로그인 필요!!</Text>;
-  }
+  if(!author){return}
   const [post, setPost] = useState<PostInfoParam>({
     id: '', //key 값 (고유값)   -> firestore 자동생성
     authorUid: author.uid, //
