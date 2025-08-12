@@ -1,3 +1,4 @@
+import { MemberInfoParam } from "./memberInfo";
 import { PostInfoParam } from "./postInfo";
 
 export type RootStackParamList = {
