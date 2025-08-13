@@ -17,8 +17,10 @@ import {
   saveFCMTokenToFirestore,
 } from './firebase/messageingSetup';
 import { members, posts } from './data/data';
-import { firestore, messaging } from './firebase';
+import { auth, firestore, messaging } from './firebase';
 import { deletePostsWithInvalidUser } from './firebase/firestoreFunctions';
+import { guestLogin } from './firebase/AuthenticationFunction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -35,7 +37,7 @@ function App() {
     messaging().onMessage(async remoteMessage =>
       onMessageReceived(remoteMessage),
     ); // 활성 상태 및 포그라운드 상태일때 FCM 메시지 수신
-    
+
     //deletePostsWithInvalidUser();
 
     /*
@@ -68,8 +70,11 @@ function App() {
     };
     addUsers();
     */
+
     return unsubscribe; // 언마운트 시 정리
   }, []);
+  const user = auth().currentUser;
+  if (!user) guestLogin();
   return (
     <View style={styles.container}>
       <StackNavigator />

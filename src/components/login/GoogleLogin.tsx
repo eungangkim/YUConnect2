@@ -45,10 +45,19 @@ export default function GoogleLogin({
 
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
-      const userCredential = await auth().signInWithCredential(
-        googleCredential,
-      );
 
+      const currentUser = auth().currentUser;
+
+      let userCredential;
+
+      if (currentUser && currentUser.isAnonymous) {
+        // ✅ 게스트 계정일 경우 → 구글 계정 연결
+        console.log('게스트 계정 승급 시도');
+        userCredential = await currentUser.linkWithCredential(googleCredential);
+      } else {
+        // ✅ 일반 로그인
+        userCredential = await auth().signInWithCredential(googleCredential);
+      }
       const user = userCredential.user;
 
       const userDoc = await firestore().collection('users').doc(user.uid).get();

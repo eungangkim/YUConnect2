@@ -29,7 +29,7 @@ const HomeScreen= () => {
   ];
   function onPostCreation(){
     const user = auth().currentUser;
-      if (!user) {
+      if (!user||user.isAnonymous) {
         Alert.alert("에러","로그인 필요!!");
         return ;
       }
