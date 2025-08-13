@@ -9,6 +9,7 @@ import style from '../../styles/components/login/EmailLogin';
 import { firestore } from '../../firebase';
 import { getFCMToken } from '../../firebase/messageingSetup';
 import { firebase } from '@react-native-firebase/firestore';
+import { signIn } from '../../firebase/AuthenticationFunction';
 
 type Props = {
   loading: boolean;
@@ -29,10 +30,10 @@ export default function EmailLogin({ loading, setLoading }: Props) {
 
     setLoading(true);
     try {
-      const userCredential = await auth().signInWithEmailAndPassword(
-        email.trim(),
-        password,
-      );
+      await signIn(email, password);
+
+      Alert.alert('성공', '로그인 성공!');
+      navigation.replace('Home');
 
       // ✅ FCM 토큰 가져오기 (비동기 처리)
       const token = await getFCMToken();
@@ -40,10 +41,11 @@ export default function EmailLogin({ loading, setLoading }: Props) {
       // ✅ Firestore 토큰 저장 (배열로 추가)
       const userDocRef = firestore()
         .collection('users')
-        .doc(userCredential.user.uid);
-      await userDocRef.update({tokens: firebase.firestore.FieldValue.arrayUnion(token)});
-      Alert.alert('성공', '로그인 성공!');
-      navigation.replace('Home');
+        .doc(auth().currentUser?.uid);
+      await userDocRef.update({
+        tokens: firebase.firestore.FieldValue.arrayUnion(token),
+      });
+
       // 로그인 성공 후 처리 (예: 화면 전환)
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
@@ -52,31 +54,8 @@ export default function EmailLogin({ loading, setLoading }: Props) {
         Alert.alert('오류', '비밀번호가 틀렸습니다.');
       } else if (error.code === 'auth/invalid-email') {
         Alert.alert('오류', '유효하지 않은 이메일 형식입니다.');
-      } else {
-        Alert.alert('오류', error.message);
-      }
-    }
-    setLoading(false);
-  };
-
-  const onRegister = async () => {
-    if (!email || !password) {
-      Alert.alert('입력 오류', '이메일과 비밀번호를 모두 입력하세요.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await auth().createUserWithEmailAndPassword(email.trim(), password);
-      Alert.alert('성공', '회원가입 완료! 자동 로그인 되었습니다.');
-      // 회원가입 성공 후 처리
-    } catch (error: any) {
-      if (error.code === 'auth/email-already-in-use') {
-        Alert.alert('오류', '이미 등록된 이메일입니다.');
-      } else if (error.code === 'auth/invalid-email') {
-        Alert.alert('오류', '유효하지 않은 이메일 형식입니다.');
-      } else if (error.code === 'auth/weak-password') {
-        Alert.alert('오류', '비밀번호가 너무 약합니다.');
+      } else if (error.code === 'EMAIL_NOT_VERIFIED') {
+        Alert.alert('오류', '이메일 인증이 필요합니다!');
       } else {
         Alert.alert('오류', error.message);
       }
@@ -112,7 +91,7 @@ export default function EmailLogin({ loading, setLoading }: Props) {
       <View style={{ height: 10 }} />
       <Button
         title={loading ? '처리 중...' : '회원가입'}
-        onPress={() => navigation.navigate('Register')}
+        onPress={() => navigation.navigate('Register',{})}
         disabled={loading}
       />
     </View>

@@ -37,18 +37,17 @@ export default function GoogleLogin({
         showPlayServicesUpdateDialog: true,
       });
       console.log('Google 로그인 시작');
-
+      await GoogleSignin.signOut(); //해당 줄 없으면 기존에 로그인 했던 구글 계정으로 자동 로그인
       const userInfo = await GoogleSignin.signIn();
       const idToken = userInfo.data?.idToken;
 
       if (!idToken) throw new Error('No ID token found');
 
-
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
       const userCredential = await auth().signInWithCredential(
         googleCredential,
-      );  
+      );
 
       const user = userCredential.user;
 
@@ -56,17 +55,11 @@ export default function GoogleLogin({
 
       if (!userDoc.exists()) {
         console.log('최초 가입: Firestore에 저장 시작');
-        await firestore().collection('users').doc(user.uid).set({
-          id: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          createdAt: firestore.FieldValue.serverTimestamp(),
-        });
+        navigation.navigate('Register', { user });
       } else {
         console.log('이미 가입된 사용자');
+        navigation.replace('Home');
       }
-      navigation.replace('Home');
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log('사용자가 로그인 취소함');

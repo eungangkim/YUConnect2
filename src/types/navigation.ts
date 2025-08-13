@@ -1,3 +1,5 @@
+import { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import { MemberInfoParam } from "./memberInfo";
 import { PostInfoParam } from "./postInfo";
 
 export type RootStackParamList = {
@@ -8,7 +10,7 @@ export type RootStackParamList = {
         name:string
     };
     Login:undefined
-    Register:undefined
+    Register:{user?:FirebaseAuthTypes.User}
     UserInfo:undefined
     알림:undefined
     게시글작성:undefined

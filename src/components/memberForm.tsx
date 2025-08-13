@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Switch } from 'react-native';
+import { View, Text, TextInput, Switch, TouchableOpacity } from 'react-native';
 import { MemberInfoParam } from '../types/memberInfo';
 import Interest from './Interest';
 import { styles } from '../styles/components/MemberForm';
@@ -23,8 +23,6 @@ export default function MemberForm({
   };
 
   // images 배열 첫 번째 uri 업데이트 예시
-  
-
   return (
     <View>
       <Text>이름</Text>
@@ -40,22 +38,24 @@ export default function MemberForm({
 
       <Text>이메일</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { flex: 3 }]}
         value={member.email}
         onChangeText={text => setField('email', text)}
         placeholder="example@mail.com"
         keyboardType="email-address"
       />
-
-      <Text>비밀번호(최소6자리)</Text>
-      <TextInput
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        placeholder="password"
-        keyboardType="visible-password"
-      />
-
+      {password !== 'false' && (
+        <View>
+          <Text>비밀번호(최소6자리)</Text>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="password"
+            keyboardType="visible-password"
+          />
+        </View>
+      )}
       <Text>전화번호</Text>
       <TextInput
         style={styles.input}
@@ -75,7 +75,7 @@ export default function MemberForm({
 
       <Text>대표 이미지 URI</Text>
       <ImagePicker images={member.images} setMember={setMember}></ImagePicker>
-      
+
       <Text>MBTI</Text>
       <TextInput
         style={styles.input}

@@ -8,6 +8,7 @@ import {
   Dimensions,
   FlatList,
   Button,
+  Alert,
 } from "react-native";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -15,6 +16,7 @@ import AndDesign from 'react-native-vector-icons/AntDesign';
 import { RootStackParamList } from "../types/navigation"; 
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { auth } from "../firebase";
 
 const { height } = Dimensions.get("window");
 
@@ -25,13 +27,24 @@ const HomeScreen= () => {
     { id: "2", text: "✅ 새로운 매칭 기능이 업데이트되었어요!" },
     { id: "3", text: "🎉 이번 주말, YU Connect 번개 모임!" },
   ];
-
+  function onPostCreation(){
+    const user = auth().currentUser;
+      if (!user) {
+        Alert.alert("에러","로그인 필요!!");
+        return ;
+      }
+      else if(!user.emailVerified){
+        Alert.alert("에러","이메일 인증 필요!!");
+        return ;
+      }
+      navigation.navigate("게시글작성");
+  };
   return (
     <View style={styles.container}>
       {/* 상단 */}
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => navigation.navigate("게시글작성")}
+          onPress={() => onPostCreation()}
         >
           <FontAwesome name="plus" size={30} color="#333" />
         </TouchableOpacity>
@@ -72,6 +85,7 @@ const HomeScreen= () => {
     </View>
   );
 };
+
 
 export default HomeScreen;
 
