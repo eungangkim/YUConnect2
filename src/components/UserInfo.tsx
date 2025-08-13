@@ -6,15 +6,18 @@ import { auth } from '../firebase';
 import style from '../styles/components/UserInfo';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { RootStackParamList } from '../types/navigation';
+import { useState } from 'react';
 
 const UserInfo = () => {
   const user = auth().currentUser;
-  const navigation =useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  user?.isAnonymous;
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   return (
     <View style={style.container}>
       <Text style={style.title}>👤 로그인된 사용자 정보</Text>
 
-      {user ? (
+      {user && !user.isAnonymous ? (
         <ScrollView
           style={style.itemContainer}
           contentContainerStyle={{ alignItems: 'center', padding: 16 }}
@@ -33,11 +36,8 @@ const UserInfo = () => {
             <Text>No profile image</Text>
           )}
           <Row label="UID" value={user.uid} />
-          {user.isAnonymous ? (
-            <Text>익명 사용자입니다.</Text>
-          ) : (
-            <Row label="이름" value={user.displayName} />
-          )}
+
+          <Row label="이름" value={user.displayName} />
 
           <Row label="이메일" value={user.email} />
           <Row
@@ -80,13 +80,20 @@ const UserInfo = () => {
             <Row label="Photo URL" value={user.providerData[0].photoURL} />
             <Row label="Provider ID" value={user.providerData[0].providerId} />
           </View>
-          <TouchableOpacity style={style.postButton} onPress={()=>navigation.navigate("PostList")}>
+
+          <TouchableOpacity
+            style={style.postButton}
+            onPress={() => navigation.navigate('PostList')}
+          >
             <Text style={style.postText}>나의 게시글</Text>
-            <Icon name="arrow-forward-outline" size={30} style={style.arrow}/>
+            <Icon name="arrow-forward-outline" size={30} style={style.arrow} />
           </TouchableOpacity>
         </ScrollView>
       ) : (
-        <Text style={style.noinfo}>로그인 정보 없음</Text>
+        <View style={style.container}>
+          <Row label="이름" value={'익명 사용자'} />
+          <Text style={style.noinfo}>로그인 정보 없음</Text>
+        </View>
       )}
     </View>
   );

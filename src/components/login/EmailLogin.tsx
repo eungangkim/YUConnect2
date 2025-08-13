@@ -91,7 +91,7 @@ export default function EmailLogin({ loading, setLoading }: Props) {
       <View style={{ height: 10 }} />
       <Button
         title={loading ? '처리 중...' : '회원가입'}
-        onPress={() => navigation.navigate('Register',{})}
+        onPress={() => navigation.replace('Register',{})} //가입 후 네비게이션 경로에 login화면이 두번 반복되어 navigate에서 replace로 변경
         disabled={loading}
       />
     </View>
