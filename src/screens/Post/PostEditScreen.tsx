@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
-import PostForm from '../components/PostForm';
-import { PostInfoParam } from '../types/postInfo';
-import { RootStackParamList } from '../types/navigation';
-import style from '../styles/screens/PostEditScreen';
-import { savePostToFirestore } from '../firebase/firestoreFunctions';
+import PostForm from '../../components/PostForm';
+import { PostInfoParam } from '../../types/postInfo';
+import { RootStackParamList } from '../../types/navigation';
+import style from '../../styles/screens/PostEditScreen';
+import { savePostToFirestore } from '../../firebase/firestoreFunctions';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type PostEditRouteProp = RouteProp<RootStackParamList, 'PostEdit'>;

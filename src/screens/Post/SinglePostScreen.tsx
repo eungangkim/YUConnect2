@@ -2,9 +2,9 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { View } from 'react-native';
 
-import { Post } from '../components/Post';
-import { RootStackParamList } from '../types/navigation';
-import style from "../styles/screens/SinglePostScreen";
+import { Post } from '../../components/Post';
+import { RootStackParamList } from '../../types/navigation';
+import style from "../../styles/screens/SinglePostScreen";
 
 type SinglePostRouteProp = RouteProp<RootStackParamList, 'SinglePost'>;
 

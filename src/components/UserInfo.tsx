@@ -10,7 +10,6 @@ import { useState } from 'react';
 
 const UserInfo = () => {
   const user = auth().currentUser;
-  user?.isAnonymous;
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   return (
@@ -89,11 +88,10 @@ const UserInfo = () => {
             <Icon name="arrow-forward-outline" size={30} style={style.arrow} />
           </TouchableOpacity>
         </ScrollView>
+      ) : user && user.isAnonymous ? (
+        <Row label="이름" value={'익명 사용자'} />
       ) : (
-        <View style={style.container}>
-          <Row label="이름" value={'익명 사용자'} />
-          <Text style={style.noinfo}>로그인 정보 없음</Text>
-        </View>
+        <Text style={style.noinfo}>로그인 정보 없음</Text>
       )}
     </View>
   );

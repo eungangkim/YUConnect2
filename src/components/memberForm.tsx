@@ -11,17 +11,11 @@ type Props = {
   password: string;
   setPassword: React.Dispatch<React.SetStateAction<string>>;
 };
-export default function MemberForm({
-  member,
-  setMember,
-  password,
-  setPassword,
-}: Props) {
+const MemberForm = ({ member, setMember, password, setPassword }: Props) => {
   // 필드별 업데이트 헬퍼
   const setField = (field: keyof MemberInfoParam, value: any) => {
     setMember(prev => ({ ...prev, [field]: value }));
   };
-
   // images 배열 첫 번째 uri 업데이트 예시
   return (
     <View>
@@ -44,9 +38,9 @@ export default function MemberForm({
         placeholder="example@mail.com"
         keyboardType="email-address"
       />
-      {password !== 'false' && (
+      {password !== 'googlePassword' && (
         <View>
-          <Text>비밀번호(최소6자리)</Text>
+          <Text>비밀번호(최소6자리fsd)</Text>
           <TextInput
             style={styles.input}
             value={password}
@@ -101,4 +95,6 @@ export default function MemberForm({
       <Interest member={member} setMember={setMember} />
     </View>
   );
-}
+};
+
+export default MemberForm

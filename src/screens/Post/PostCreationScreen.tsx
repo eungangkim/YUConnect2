@@ -3,12 +3,12 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
-import { PostInfoParam } from '../types/postInfo';
-import { RootStackParamList } from '../types/navigation';
-import { auth, firestore } from '../firebase';
-import PostForm from '../components/PostForm';
-import { addPostToFirestore } from '../firebase/firestoreFunctions';
-import style from '../styles/screens/PostCreationScreen';
+import { PostInfoParam } from '../../types/postInfo';
+import { RootStackParamList } from '../../types/navigation';
+import { auth, firestore } from '../../firebase';
+import PostForm from '../../components/PostForm';
+import { addPostToFirestore } from '../../firebase/firestoreFunctions';
+import style from '../../styles/screens/PostCreationScreen';
 
 const PostCreationScreen = () => {
   const navigation =

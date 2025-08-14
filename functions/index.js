@@ -38,14 +38,14 @@ const db = admin.firestore();
 
 // 알림 전송 함수: HTTP 요청으로 호출
 exports.sendNotification = functions.https.onRequest(async (req, res) => {
-  const { tokens, senderName, postTitle } = req.body;
+  const { tokens, title, body } = req.body;
 
   if (!tokens || !Array.isArray(tokens) || tokens.length === 0) {
     console.error("❌ 유효하지 않은 토큰 배열:", tokens);
     return res.status(400).send("잘못된 요청: 토큰이 없습a니다.");
   }
-  if (!senderName || !postTitle) {
-    console.error("❌ 누락된 필드:", { senderName, postTitle });
+  if (!postTitle) {
+    console.error("❌ 누락된 필드:", { postTitle });
     return res.status(400).send("잘못된 요청: 필드 누락");
   }
   try {
@@ -58,17 +58,16 @@ exports.sendNotification = functions.https.onRequest(async (req, res) => {
       const message = {
         token: tokens[0],
         notification: {
-          title: `${senderName}님이 대화창에 참여하고 싶어합니다`,
-          body: `"${postTitle}" 대화창에 참여하고 싶어합니다!! 요청을 수락해주세요!!`
-        }
-      };
+          title: {title},
+          body: {body}
+      }};
       const response = await admin.messaging().send(message);
       } else {
         const message = {
           tokens,
           notification: {
-            title: `${senderName}님이 대화창에 참여하고 싶어합니다`,
-            body: `"${postTitle}" 대화창에 참여하고 싶어합니다!! 요청을 수락해주세요!!`
+            title: {title},
+            body: {body}
           }
         };
       const response = await admin.messaging().sendMulticast(message);

@@ -1,5 +1,4 @@
-
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
@@ -9,54 +8,67 @@ import {
   FlatList,
   Button,
   Alert,
-} from "react-native";
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import AndDesign from 'react-native-vector-icons/AntDesign';
-import { RootStackParamList } from "../types/navigation"; 
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { auth } from "../firebase";
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { RootStackParamList } from '../types/navigation';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { auth } from '../firebase';
 
-const { height } = Dimensions.get("window");
+const { height } = Dimensions.get('window');
 
-const HomeScreen= () => {
-  const navigation =useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+const HomeScreen = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const notices = [
-    { id: "1", text: "📢 YU Connect에 오신 것을 환영합니다!" },
-    { id: "2", text: "✅ 새로운 매칭 기능이 업데이트되었어요!" },
-    { id: "3", text: "🎉 이번 주말, YU Connect 번개 모임!" },
+    { id: '1', text: '📢 YU Connect에 오신 것을 환영합니다!' },
+    { id: '2', text: '✅ 새로운 매칭 기능이 업데이트되었어요!' },
+    { id: '3', text: '🎉 이번 주말, YU Connect 번개 모임!' },
   ];
-  function onPostCreation(){
+  function onPostCreation() {
     const user = auth().currentUser;
-      if (!user||user.isAnonymous) {
-        Alert.alert("에러","로그인 필요!!");
-        return ;
-      }
-      else if(!user.emailVerified){
-        Alert.alert("에러","이메일 인증 필요!!");
-        return ;
-      }
-      navigation.navigate("게시글작성");
-  };
+    if (!user || user.isAnonymous) {
+      Alert.alert('에러', '로그인 필요!!');
+      return;
+    } else if (!user.emailVerified) {
+      Alert.alert('에러', '이메일 인증 필요!!');
+      return;
+    }
+    navigation.navigate('게시글작성');
+  }
   return (
     <View style={styles.container}>
       {/* 상단 */}
       <View style={styles.header}>
         <TouchableOpacity
+          style={styles.Button}
           onPress={() => onPostCreation()}
         >
           <FontAwesome name="plus" size={30} color="#333" />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate("UserInfo")}
+          style={styles.Button}
+          onPress={() => navigation.navigate('UserInfo')}
         >
-          <AndDesign name="user" size={30} color="#333" />
+          <AntDesign name="user" size={30} color="#333" />
         </TouchableOpacity>
         <Text style={styles.title}>YU Connect</Text>
-
         <TouchableOpacity
-          onPress={() => navigation.navigate("알림")}
+          style={styles.Button}
+          onPress={() => navigation.navigate('ChatList')}
+        >
+          <MaterialCommunityIcons
+            name="message-outline"
+            size={30}
+            color="#333"
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.Button}
+          onPress={() => navigation.navigate('알림')}
         >
           <Ionicons name="notifications-outline" size={30} color="#333" />
         </TouchableOpacity>
@@ -66,7 +78,7 @@ const HomeScreen= () => {
       <View style={styles.noticeBox}>
         <FlatList
           data={notices}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <Text style={styles.noticeText}>{item.text}</Text>
           )}
@@ -77,7 +89,7 @@ const HomeScreen= () => {
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.friendButton}
-          onPress={() => navigation.navigate("매칭",{name:"김은강",id:1})}
+          onPress={() => navigation.navigate('매칭', { name: '김은강', id: 1 })}
         >
           <Text style={styles.footerText}>👫 친구 매칭</Text>
         </TouchableOpacity>
@@ -86,59 +98,58 @@ const HomeScreen= () => {
   );
 };
 
-
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F9F9F9" },
+  container: { flex: 1, backgroundColor: '#F9F9F9' },
   header: {
     height: height / 7,
     borderBottomWidth: 1,
-    borderColor: "#ccc",
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
+    borderColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
     paddingHorizontal: 20,
   },
   title: {
     fontSize: 22,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     flex: 1,
-    textAlign: "center",
+    textAlign: 'center',
   },
-  notificationButton: { position: "absolute", right: 20 },
+  Button: { padding: 8 },
   noticeBox: {
     height: (height / 7) * 5,
     margin: 10,
     borderRadius: 15,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: '#ccc',
     padding: 15,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
   noticeText: { fontSize: 16, paddingVertical: 5 },
   footer: {
     height: height / 7,
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
-    alignItems: "center",
+    alignItems: 'center',
   },
   friendButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: '#4CAF50',
     padding: 15,
     borderRadius: 10,
     flex: 1,
     marginRight: 10,
-    alignItems: "center",
+    alignItems: 'center',
   },
   loveButton: {
-    backgroundColor: "#E91E63",
+    backgroundColor: '#E91E63',
     padding: 15,
     borderRadius: 10,
     flex: 1,
     marginLeft: 10,
-    alignItems: "center",
+    alignItems: 'center',
   },
-  footerText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  footerText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });

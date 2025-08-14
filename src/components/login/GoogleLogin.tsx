@@ -44,27 +44,22 @@ export default function GoogleLogin({
       if (!idToken) throw new Error('No ID token found');
 
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
-
-      const currentUser = auth().currentUser;
-
-      let userCredential;
-
-      if (currentUser && currentUser.isAnonymous) {
-        // ✅ 게스트 계정일 경우 → 구글 계정 연결
-        console.log('게스트 계정 승급 시도');
-        userCredential = await currentUser.linkWithCredential(googleCredential);
-      } else {
-        // ✅ 일반 로그인
-        userCredential = await auth().signInWithCredential(googleCredential);
+      let currentUser = auth().currentUser;
+      if (currentUser?.isAnonymous) {
+        await currentUser.delete();
       }
-      const user = userCredential.user;
+      await auth().signInWithCredential(googleCredential);
 
-      const userDoc = await firestore().collection('users').doc(user.uid).get();
+      currentUser = auth().currentUser!;
+
+      console.log(currentUser.uid);
+      const userDoc = await firestore()
+        .collection('users')
+        .doc(currentUser.uid)
+        .get();
 
       if (!userDoc.exists()) {
-        console.log('최초 가입: Firestore에 저장 시작');
-        navigation.navigate('Register', { user });
+        navigation.navigate('Register');
       } else {
         console.log('이미 가입된 사용자');
         navigation.replace('Home');
