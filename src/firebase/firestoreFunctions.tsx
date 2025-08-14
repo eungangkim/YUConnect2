@@ -7,6 +7,7 @@ import { RootStackParamList } from '../types/navigation';
 import { PostInfoParam } from '../types/postInfo';
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { guestLogin } from './AuthenticationFunction';
+import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 export async function getPosts() {
   try {
@@ -177,4 +178,23 @@ export async function deletePostsWithInvalidUser() {
   } catch (error) {
     console.error('관리자 게시물 정리 중 오류 발생:', error);
   }
+}
+
+export async function addChatToFirestore(title:string) {
+  const chatRef = firestore().collection('chats').doc();
+  const user =auth().currentUser;
+  // 2. post 객체에 ID 포함
+   const chat = {
+    id: chatRef.id,
+    users: [user?.uid], // 참여자 UID 리스트
+    title: title+"의 채팅방",
+    lastMessage: {
+      text: '', // 초기에는 메시지 없음
+      timestamp: null // 나중에 메시지가 들어올 때 serverTimestamp로 업데이트
+    },
+    createdAt: firestore.FieldValue.serverTimestamp(), // 생성 시 서버 시간
+  };
+
+  chatRef.set(chat);
+  return chatRef;
 }

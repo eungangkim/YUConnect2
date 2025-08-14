@@ -9,19 +9,26 @@ import { sendMessageNotificationToUsers } from '../../firebase/messageingSetup';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
 
-const ChatScreen = async () => {
+const ChatScreen = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState('');
+  const [users, setUsers] = useState<string[]>([]);
 
   const chatId = useRoute<ChatScreenRouteProp>().params.chatId;
   const user = auth().currentUser;
-  const users = await getParticipatedUsers(chatId);
   if (!user || !users) {
     return;
   }
-  markMessagesAsRead(chatId, user.uid);
-
   useEffect(() => {
+    if (!user) return;
+
+    const fetchUsersAndMarkRead = async () => {
+      const participatedUsers = await getParticipatedUsers(chatId);
+      setUsers(participatedUsers!);
+      await markMessagesAsRead(chatId, user.uid);
+    };
+
+    fetchUsersAndMarkRead();
     const unsubscribe = firestore()
       .collection('chats')
       .doc(chatId)
@@ -76,7 +83,7 @@ const ChatScreen = async () => {
               {item.text}
             </Text>
             <Text>
-              {item.readBy.length}/{users.length}
+              {users.length-item.readBy.length==0?"모두 읽음":users.length-item.readBy.length}
             </Text>
           </View>
         )}

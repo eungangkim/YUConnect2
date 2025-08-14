@@ -74,7 +74,9 @@ function App() {
     return unsubscribe; // 언마운트 시 정리
   }, []);
   const user = auth().currentUser;
-  if (!user||!user.isAnonymous) guestLogin();
+  if (!user) {
+    guestLogin();
+  }
   return (
     <View style={styles.container}>
       <StackNavigator />

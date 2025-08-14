@@ -4,6 +4,7 @@ import { messageInfo } from "./messageInfo"
 export type chatRoomInfo = {
   id?: string; // chatId
   users: string[];
+  title:string;
   lastMessage: {
     text: string;
     timestamp: FirebaseFirestoreTypes.Timestamp;

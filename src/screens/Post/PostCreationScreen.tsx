@@ -7,7 +7,7 @@ import { PostInfoParam } from '../../types/postInfo';
 import { RootStackParamList } from '../../types/navigation';
 import { auth, firestore } from '../../firebase';
 import PostForm from '../../components/PostForm';
-import { addPostToFirestore } from '../../firebase/firestoreFunctions';
+import { addChatToFirestore, addPostToFirestore } from '../../firebase/firestoreFunctions';
 import style from '../../styles/screens/PostCreationScreen';
 
 const PostCreationScreen = () => {
@@ -24,7 +24,7 @@ const PostCreationScreen = () => {
     forFriendship: false, //true 라면 친구가 목적인 글
     description: '', // 사용자가 작성한 글
     userList: [author.uid], //참여된 사용자 배열   -> ''[] 사용자들의 id 저장
-    chatRoute: '', //게시글에 참여하면 참가할 수 있는 대화창 주소
+    chatId: '', //게시글에 참여하면 참가할 수 있는 대화창 주소
     maxUserCount: 2,
     images: [],
   });
@@ -33,7 +33,10 @@ const PostCreationScreen = () => {
     <ScrollView style={style.container}>
       <PostForm post={post} setPost={setPost}></PostForm>
       <TouchableOpacity
-        onPress={() => {
+        onPress={async () => {
+          const chatRef = await addChatToFirestore(post.title);
+          setPost(prev => (prev ? { ...prev, ['chatId']:chatRef.id} : prev));
+
           addPostToFirestore(post);
           Alert.alert('게시글이 저장되었습니다!');
           navigation.replace('Home');
