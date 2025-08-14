@@ -52,7 +52,7 @@ const RegisterScreen = () => {
           tokens: [],
         },
   );
-  const [password, setPassword] = useState(user ? 'googlePassword' : '');
+  const [password, setPassword] = useState(user&&!user.isAnonymous ? 'googlePassword' : '');
   const [loading, setLoading] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const navigation =
@@ -98,7 +98,7 @@ const RegisterScreen = () => {
         title={loading ? '처리 중...' : 'register'}
         onPress={async () => {
           setLoading(true);
-
+          setIsRegistered(true);
           try {
             if (user && !user.isAnonymous) {
               await signUpWithGoogleEmail(member, password);

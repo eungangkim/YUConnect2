@@ -6,6 +6,7 @@ import { getFCMToken } from './messageingSetup';
 import { RootStackParamList } from '../types/navigation';
 import { PostInfoParam } from '../types/postInfo';
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { guestLogin } from './AuthenticationFunction';
 
 export async function getPosts() {
   try {
@@ -35,7 +36,7 @@ export async function getPostsWithUserId(id: string) {
 
 export async function addUserToFirestore(
   user: FirebaseAuthTypes.User | null,
-  member:MemberInfoParam,
+  member: MemberInfoParam,
 ) {
   try {
     // 1. 문서 참조 생성 (자동 ID 포함)
@@ -122,6 +123,8 @@ export async function deleteUserFromFireStore(Uid: string) {
         batch.delete(doc.ref);
       });
       await batch.commit();
+      await guestLogin();
+
       console.log('게시물 삭제 완료');
     } else {
       console.log('해당 유저의 게시물이 없습니다.');

@@ -38,16 +38,15 @@ function UserInfoScreen({ navigation }: Props) {
               title="회원탈퇴"
               onPress={() => {
                 deleteUserFromFireStore(user.uid);
-                guestLogin();
                 Alert.alert('회원 탈퇴가 완료되었습니다.');
                 navigation.replace('Login');
               }}
             />
             <Button
               title="로그아웃"
-              onPress={() => {
+              onPress={async () => {
                 handleLogout();
-                guestLogin();
+                await guestLogin();
               }}
             />
           </View>

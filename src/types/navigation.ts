@@ -10,7 +10,7 @@ export type RootStackParamList = {
     name: string;
   };
   Login: undefined;
-  Register: { user?: FirebaseAuthTypes.User };
+  Register: undefined;
   UserInfo: undefined;
   알림: undefined;
   게시글작성: undefined;

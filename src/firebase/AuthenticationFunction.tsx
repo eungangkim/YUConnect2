@@ -37,21 +37,26 @@ export async function signUpWithEmail(
 
       // 3) 인증 전에는 로그아웃 처리
       await auth().signOut();
+      await guestLogin();
       return;
     }
-    console.log("이메일 가입 시도시 문제 발생! user가 ㅇ벗음");
   } catch (error) {
+        console.log("이메일 가입 시도시 문제 발생!");
     console.error(error);
   }
 }
 
 export async function signIn(email: string, password: string) {
   try {
+    let user =auth().currentUser;
+    if(user?.isAnonymous){
+      user.delete();
+    }
     const userCredential = await auth().signInWithEmailAndPassword(
       email,
       password,
     );
-    const user = userCredential.user;
+    user = userCredential.user;
 
     if (!user.emailVerified) {
       console.log('이메일 인증 필요!');
@@ -63,6 +68,7 @@ export async function signIn(email: string, password: string) {
 
     console.log('로그인 성공!');
   } catch (error) {
+    console.log("이메일 로그인 시도중 에러발생");
     throw error;
   }
 }
