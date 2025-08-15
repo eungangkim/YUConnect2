@@ -58,13 +58,13 @@ const ChatScreen = () => {
         timestamp: firestore.FieldValue.serverTimestamp(),
       },
     });
-    docRef.collection('messages').add({
+    const mesRef = await docRef.collection('messages').add({
       text: input,
       senderId: user.uid,
       readBy: [user.uid],
       timestamp: firestore.FieldValue.serverTimestamp(),
     });
-    await docRef.update({ id: docRef.id });
+    await mesRef.update({ id: mesRef.id });
     sendMessageNotificationToUsers(user.uid, users, input);
 
     setInput('');
@@ -106,7 +106,12 @@ const ChatScreen = () => {
           value={input}
           onChangeText={setInput}
           placeholder="메시지 입력"
-          onPointerEnter={sendMessage}
+          multiline={true}
+          returnKeyType="default"
+          submitBehavior="newline"
+          onSubmitEditing={() => {
+            sendMessage();
+          }}
         />
         <Button title="전송" onPress={sendMessage} />
       </View>

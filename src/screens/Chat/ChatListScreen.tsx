@@ -23,6 +23,8 @@ const ChatListScreen = () => {
 
   useEffect(() => {
     if (!user) return;
+    console.log('ChatListScreen mount');
+
     const unsubscribe = firestore()
       .collection('chats')
       .where('users', 'array-contains', user.uid)
@@ -43,7 +45,10 @@ const ChatListScreen = () => {
         setLoading(false);
       });
 
-    return () => unsubscribe();
+    return () => {
+      console.log('ChatListScreen unmount');
+      unsubscribe();
+    };
   }, [user]);
   if (loading) return <ActivityIndicator size="large" style={{ flex: 1 }} />;
 
@@ -61,7 +66,7 @@ const ChatListScreen = () => {
       data={chatRooms}
       renderItem={({ item }) => {
         const otherUsers = item.users.filter(uid => uid !== user?.uid);
-        const title = item.title?item.title:""
+        const title = item.title ? item.title : '';
         const lastMessageText = item.lastMessage?.text ?? '메시지가 없습니다.';
         return (
           <TouchableOpacity
@@ -78,7 +83,9 @@ const ChatListScreen = () => {
               })
             }
           >
-            <View style={{flexDirection:'row',justifyContent:"space-between"}}>
+            <View
+              style={{ flexDirection: 'row', justifyContent: 'space-between' }}
+            >
               <Text style={{ fontWeight: 'bold' }}>{item.title}</Text>
               <Text>{item.users.length}명</Text>
             </View>
