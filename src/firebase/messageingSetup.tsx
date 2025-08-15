@@ -35,14 +35,13 @@ export const onMessageReceived = async (
 };
 // 이 방식으로 저장
 export async function saveFCMTokenToFirestore(newToken: string) {
-  const token = await messaging().getToken();
-  const uid = auth().currentUser?.uid;
-  console.log('토큰 :', token);
-  if (uid && token) {
+  const uid = await auth().currentUser?.uid;
+  console.log("토큰을 저장중...   uid:",uid,"   newToken:",newToken);
+  if (uid && newToken) {
     await firestore()
       .collection('users')
       .doc(uid)
-      .update({ tokens: firebase.firestore.FieldValue.arrayUnion(token) });
+      .update({ tokens: firebase.firestore.FieldValue.arrayUnion(newToken) });
     console.log('✅ 토큰 저장됨:', newToken);
   }
 }
@@ -133,6 +132,7 @@ export async function sendMessageNotificationToUsers(
 
     const MAX_MESSAGE_LENGTH = 50; // 50자 제한
     const truncatedMessage = truncateMessage(message, MAX_MESSAGE_LENGTH);
+
     // 2️⃣ 서버로 알림 요청
     await axios.post('https://sendnotification-p2szwh77pa-uc.a.run.app', {
       tokens: tokens,
@@ -140,7 +140,7 @@ export async function sendMessageNotificationToUsers(
       body: `${displayName}: ${truncatedMessage}`,
     });
 
-    console.log('메시지 알림 전송 완료');
+    console.log('메시지 알림 전송 완료 tokens:',tokens);
   } catch (error) {
     console.error('메시지 알림 전송 실패:', error);
   }

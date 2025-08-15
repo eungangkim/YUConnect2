@@ -9,7 +9,7 @@ import {
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { chatRoomInfo } from '../../types/chatRoomInfo';
 
@@ -21,35 +21,36 @@ const ChatListScreen = () => {
 
   const user = auth().currentUser;
 
-  useEffect(() => {
-    if (!user) return;
-    console.log('ChatListScreen mount');
+  if (!user) return null;
 
-    const unsubscribe = firestore()
-      .collection('chats')
-      .where('users', 'array-contains', user.uid)
-      .orderBy('lastMessage.timestamp', 'desc')
-      .onSnapshot(snapshot => {
-        //console.log('전체 문서 수:', snapshot.docs.length);
+  // 1️⃣ 실시간 snapshot 구독 (마운트 시)
 
-        if (!snapshot) {
-          console.log('스냅샷이 없음');
+  // 2️⃣ 화면 포커스 시 강제 fetch (뒤로가기 후 최신화)
+  useFocusEffect(
+    React.useCallback(() => {
+      const querySnapshot = firestore()
+        .collection('chats')
+        .where('users', 'array-contains', user.uid)
+        //.orderBy('lastMessage.timestamp', 'desc');
+      const unsubscribe = querySnapshot.onSnapshot(
+        { includeMetadataChanges: true },
+        async snapshot => {
+          if (!snapshot) {
+            console.log('스냅샷 없음');
+            return;
+          }
+          const rooms = snapshot.docs.map(
+            doc => ({ ...doc.data() } as chatRoomInfo),
+          );
+          console.log('대화방 목록:', rooms);
+          rooms.sort((a,b)=>{return b.lastMessage.timestamp.toMillis()-a.lastMessage.timestamp.toMillis()})
+          await setChatRooms(rooms);
           setLoading(false);
-          return;
-        }
-        const rooms = snapshot.docs.map(doc => {
-          console.log(doc.data()); // 데이터 확인
-          return { ...doc.data() } as chatRoomInfo;
-        });
-        setChatRooms(rooms);
-        setLoading(false);
-      });
-
-    return () => {
-      console.log('ChatListScreen unmount');
-      unsubscribe();
-    };
-  }, [user]);
+        },
+      );
+      return () => unsubscribe();
+    }, [user]),
+  );
   if (loading) return <ActivityIndicator size="large" style={{ flex: 1 }} />;
 
   if (chatRooms.length === 0) {
@@ -86,7 +87,7 @@ const ChatListScreen = () => {
             <View
               style={{ flexDirection: 'row', justifyContent: 'space-between' }}
             >
-              <Text style={{ fontWeight: 'bold' }}>{item.title}</Text>
+              <Text style={{ fontWeight: 'bold' }}>{title}</Text>
               <Text>{item.users.length}명</Text>
             </View>
             <Text style={{ color: '#666', marginTop: 4 }}>

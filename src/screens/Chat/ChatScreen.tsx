@@ -26,12 +26,14 @@ const ChatScreen = () => {
   useEffect(() => {
     if (!user) return;
 
-    const fetchUsersAndMarkRead = async () => {
-      const participatedUsers = await getParticipatedUsers(chatId);
-      setUsers(participatedUsers!);
-    };
+    let isMounted = true;
 
-    fetchUsersAndMarkRead();
+    const fetchUsers = async () => {
+      const participatedUsers = await getParticipatedUsers(chatId);
+      if (isMounted) setUsers(participatedUsers!);
+    };
+    fetchUsers();
+
     const querySnapshot = firestore()
       .collection('chats')
       .doc(chatId)
@@ -39,18 +41,25 @@ const ChatScreen = () => {
       .orderBy('timestamp', 'asc');
 
     const unsubscribe = querySnapshot.onSnapshot(async snapshot => {
+      if (!isMounted) return;
+
       const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // 메시지 읽음 처리
       await markMessagesAsRead(querySnapshot, user.uid);
 
       setMessages(msgs);
 
-      // 첫 로드 후 최하단 스크롤
+      // 최하단 스크롤
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: false });
-      }, 1000); // 렌더링 완료 후
+      }, 150);
     });
 
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      unsubscribe(); // 이전 구독 해제
+    };
   }, [chatId]);
 
   const sendMessage = async () => {
@@ -70,7 +79,7 @@ const ChatScreen = () => {
       timestamp: firestore.FieldValue.serverTimestamp(),
     });
     await mesRef.update({ id: mesRef.id });
-    sendMessageNotificationToUsers(user.uid, users, input);
+    await sendMessageNotificationToUsers(user.uid, users, input);
 
     setInput('');
     flatListRef.current?.scrollToEnd({ animated: true });
@@ -120,7 +129,7 @@ const ChatScreen = () => {
             sendMessage();
           }}
         />
-        <Button title="전송" onPress={sendMessage} />
+        <Button title="전송" onPress={()=> sendMessage()} />
       </View>
     </View>
   );
@@ -147,7 +156,6 @@ async function getParticipatedUsers(chatId: string) {
 
   if (docSnap.exists()) {
     const data = docSnap.data() as chatRoomInfo; // 문서의 모든 필드 객체
-    console.log('문서 데이터:', data);
     return data.users;
   }
 }

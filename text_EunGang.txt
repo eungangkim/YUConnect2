@@ -62,3 +62,4 @@
 
 2025년 8월 15일
     -chatListScreen 두번 반복되는 현상 -> 예상 원인(GPT 출처) : React 18부터 개발 모드에서 useEffect가 마운트 → 언마운트 → 다시 마운트를 한 번 더 시뮬레이션하는 기능이 켜져 있습니다.
+    -firebase deploy --only functions   //functions 폴더에서 실행
