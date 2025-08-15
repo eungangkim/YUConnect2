@@ -42,10 +42,10 @@ exports.sendNotification = functions.https.onRequest(async (req, res) => {
 
   if (!tokens || !Array.isArray(tokens) || tokens.length === 0) {
     console.error("❌ 유효하지 않은 토큰 배열:", tokens);
-    return res.status(400).send("잘못된 요청: 토큰이 없습a니다.");
+    return res.status(400).send("잘못된 요청: 토큰이 없습니다.");
   }
-  if (!postTitle) {
-    console.error("❌ 누락된 필드:", { postTitle });
+  if (!title) {
+    console.error("❌ 누락된 필드:", { title });
     return res.status(400).send("잘못된 요청: 필드 누락");
   }
   try {
@@ -58,19 +58,26 @@ exports.sendNotification = functions.https.onRequest(async (req, res) => {
       const message = {
         token: tokens[0],
         notification: {
-          title: {title},
-          body: {body}
+          title: title,
+          body: body
       }};
       const response = await admin.messaging().send(message);
+      console.log("✅ 단일 알림 전송 성공:", response);
       } else {
         const message = {
           tokens,
           notification: {
-            title: {title},
-            body: {body}
+            title: title,
+            body: body
           }
         };
       const response = await admin.messaging().sendMulticast(message);
+      console.log(`✅ 알림 전송: 성공 ${response.successCount}, 실패 ${response.failureCount}`);
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          console.error(`❌ 토큰 ${tokens[idx]} 전송 실패:`, resp.error);
+        }
+      });cd
     }
 
     return res.status(200).send("✅ 알림 전송 완료");
