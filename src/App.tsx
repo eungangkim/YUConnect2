@@ -10,10 +10,7 @@ import { useEffect } from 'react';
 
 import StackNavigator from './navigation/StackNavigator';
 import {
-  getFCMToken,
-  onMessageReceived,
-  registerMessageHandler,
-  requestUserPermission,
+  initNotifications,
   saveFCMTokenToFirestore,
 } from './firebase/messageingSetup';
 import { members, posts } from './data/data';
@@ -29,32 +26,10 @@ function App() {
     if (!auth().currentUser) {
       guestLogin().catch(err => console.error('게스트 로그인 실패:', err));
     }
-    const fetchData = async () => {
-      try {
-        await requestUserPermission();
-        const token = await getFCMToken();
-        if (token && isMounted) await saveFCMTokenToFirestore(token);
-        if (isMounted) await registerMessageHandler();
-      } catch (err) {
-        console.error('FCM 초기화 오류:', err);
-      }
-    };
-
-    fetchData();
-
-    const unsubscribeTokenRefresh = messaging().onTokenRefresh(newToken => {
-      console.log('🔄 토큰 갱신됨:', newToken);
-      saveFCMTokenToFirestore(newToken);
-    });
-
-    const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
-      onMessageReceived(remoteMessage);
-    });
+    initNotifications(saveFCMTokenToFirestore);
 
     return () => {
       isMounted = false;
-      unsubscribeTokenRefresh();
-      unsubscribeOnMessage();
     };
   }, []);
   const user = auth().currentUser;

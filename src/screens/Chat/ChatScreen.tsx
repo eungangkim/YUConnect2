@@ -17,6 +17,8 @@ const ChatScreen = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState('');
   const [users, setUsers] = useState<string[]>([]);
+  const inputRef = useRef<TextInput>(null);
+
   const flatListRef = useRef<FlatList>(null);
   const chatId = useRoute<ChatScreenRouteProp>().params.chatId;
   const user = auth().currentUser;
@@ -55,7 +57,7 @@ const ChatScreen = () => {
         flatListRef.current?.scrollToEnd({ animated: false });
       }, 150);
     });
-
+    inputRef.current?.focus();
     return () => {
       isMounted = false;
       unsubscribe(); // 이전 구독 해제
@@ -118,6 +120,7 @@ const ChatScreen = () => {
 
       <View style={{ flexDirection: 'row', marginTop: 5 }}>
         <TextInput
+          ref={inputRef}
           style={{ flex: 1, borderWidth: 1, borderRadius: 5, padding: 8 }}
           value={input}
           onChangeText={setInput}
@@ -129,7 +132,7 @@ const ChatScreen = () => {
             sendMessage();
           }}
         />
-        <Button title="전송" onPress={()=> sendMessage()} />
+        <Button title="전송" onPress={() => sendMessage()} />
       </View>
     </View>
   );

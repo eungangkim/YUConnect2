@@ -2,8 +2,9 @@
 import { firebase } from '@react-native-firebase/firestore';
 import { auth, firestore, messaging } from '../firebase';
 import axios from 'axios'; // 또는 fetch 사용 가능
+import notifee, { EventType } from '@notifee/react-native';
 
-import { Alert } from 'react-native';
+import { Alert, AppState } from 'react-native';
 import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 
 export async function requestUserPermission() {
@@ -16,16 +17,59 @@ export async function requestUserPermission() {
     console.log('Authorization status:', authStatus);
   }
 }
-
+export async function requestNotificationPermission() {
+  await notifee.requestPermission(); // iOS
+}
 export async function getFCMToken() {
   const token = await messaging().getToken();
   console.log('FCM Token:', token);
   return token;
 }
-
-export function registerMessageHandler() {
+export function registerForegroundHandler() {
   messaging().onMessage(async remoteMessage => {
-    Alert.alert('📩 새 알림', JSON.stringify(remoteMessage.notification?.body));
+    console.log('포그라운드 메시지:', remoteMessage);
+
+    // 앱이 활성 상태일 때만 Alert
+    if (AppState.currentState === 'active') {
+      await notifee.displayNotification({
+        title: remoteMessage.notification?.title,
+        body: remoteMessage.notification?.body,
+        android: {
+          channelId: 'default',
+          smallIcon: 'ic_launcher', // AndroidManifest.xml에 있는 아이콘 이름
+        },
+      });
+    }
+  });
+}
+export function registerBackgroundHandler() {
+  notifee.onBackgroundEvent(async ({ type, detail }) => {
+    console.log('Notifee 백그라운드 이벤트:', type, detail);
+
+    if (type === EventType.PRESS || type === EventType.ACTION_PRESS) {
+      const { notification, pressAction } = detail;
+      console.log('알림 클릭/액션:', notification, pressAction);
+
+      // 예: 특정 화면으로 네비게이션
+      // NavigationService.navigate('Chat', { chatId: notification?.data?.chatId });
+    }
+  });
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    console.log('백그라운드 메시지:', remoteMessage);
+
+    await notifee.displayNotification({
+      title: remoteMessage.notification?.title,
+      body: remoteMessage.notification?.body,
+      android: { channelId: 'default' },
+    });
+  });
+}
+export function registerTokenRefreshHandler(
+  saveToken: (token: string) => void,
+) {
+  messaging().onTokenRefresh(newToken => {
+    console.log('FCM 토큰 갱신:', newToken);
+    saveToken(newToken); // Firestore나 서버에 저장
   });
 }
 export const onMessageReceived = async (
@@ -36,7 +80,7 @@ export const onMessageReceived = async (
 // 이 방식으로 저장
 export async function saveFCMTokenToFirestore(newToken: string) {
   const uid = await auth().currentUser?.uid;
-  console.log("토큰을 저장중...   uid:",uid,"   newToken:",newToken);
+  console.log('토큰을 저장중...   uid:', uid, '   newToken:', newToken);
   if (uid && newToken) {
     await firestore()
       .collection('users')
@@ -140,7 +184,7 @@ export async function sendMessageNotificationToUsers(
       body: `${displayName}: ${truncatedMessage}`,
     });
 
-    console.log('메시지 알림 전송 완료 tokens:',tokens);
+    console.log('메시지 알림 전송 완료 tokens:', tokens);
   } catch (error) {
     console.error('메시지 알림 전송 실패:', error);
   }
@@ -151,3 +195,20 @@ function truncateMessage(message: string, maxLength: number) {
   return message.substring(0, maxLength) + '...';
 }
 
+async function createChannel() {
+  await notifee.createChannel({
+    id: 'default',
+    name: '기본 알림 채널',
+  });
+}
+export async function initNotifications(saveToken: (token: string) => void) {
+  await requestNotificationPermission();
+  await createChannel();
+  registerForegroundHandler();
+  registerBackgroundHandler();
+
+  const token = await messaging().getToken();
+  saveToken(token);
+
+  registerTokenRefreshHandler(saveToken);
+}
