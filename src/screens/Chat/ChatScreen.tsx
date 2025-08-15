@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, TextInput, Button, FlatList, Text } from 'react-native';
 import firestore, {
   doc,
@@ -17,7 +17,7 @@ const ChatScreen = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState('');
   const [users, setUsers] = useState<string[]>([]);
-
+  const flatListRef = useRef<FlatList>(null);
   const chatId = useRoute<ChatScreenRouteProp>().params.chatId;
   const user = auth().currentUser;
   if (!user || !users) {
@@ -43,6 +43,11 @@ const ChatScreen = () => {
       await markMessagesAsRead(querySnapshot, user.uid);
 
       setMessages(msgs);
+
+      // 첫 로드 후 최하단 스크롤
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: false });
+      }, 1000); // 렌더링 완료 후
     });
 
     return () => unsubscribe();
@@ -68,11 +73,13 @@ const ChatScreen = () => {
     sendMessageNotificationToUsers(user.uid, users, input);
 
     setInput('');
+    flatListRef.current?.scrollToEnd({ animated: true });
   };
 
   return (
     <View style={{ flex: 1, padding: 10 }}>
       <FlatList
+        ref={flatListRef}
         data={messages}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
