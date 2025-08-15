@@ -12,6 +12,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
 import style from '../../styles/components/login/GoogleLogin';
 import Svg, { Path } from 'react-native-svg';
+import { updateToken } from '../../firebase/firestoreFunctions';
 
 export default function GoogleLogin({
   loading,
@@ -61,6 +62,7 @@ export default function GoogleLogin({
       if (!userDoc.exists()) {
         navigation.navigate('Register');
       } else {
+        updateToken();
         console.log('이미 가입된 사용자');
         navigation.replace('Home');
       }

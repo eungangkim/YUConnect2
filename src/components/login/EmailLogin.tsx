@@ -8,8 +8,8 @@ import { useNavigation } from '@react-navigation/native';
 import style from '../../styles/components/login/EmailLogin';
 import { firestore } from '../../firebase';
 import { getFCMToken } from '../../firebase/messageingSetup';
-import { firebase } from '@react-native-firebase/firestore';
 import { signIn } from '../../firebase/AuthenticationFunction';
+import { updateToken } from '../../firebase/firestoreFunctions';
 
 type Props = {
   loading: boolean;
@@ -36,15 +36,8 @@ export default function EmailLogin({ loading, setLoading }: Props) {
       navigation.replace('Home');
 
       // ✅ FCM 토큰 가져오기 (비동기 처리)
-      const token = await getFCMToken();
-
-      // ✅ Firestore 토큰 저장 (배열로 추가)
-      const userDocRef = firestore()
-        .collection('users')
-        .doc(auth().currentUser?.uid);
-      await userDocRef.update({
-        tokens: firebase.firestore.FieldValue.arrayUnion(token),
-      });
+      updateToken();
+      
 
       // 로그인 성공 후 처리 (예: 화면 전환)
     } catch (error: any) {

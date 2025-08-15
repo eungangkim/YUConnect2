@@ -48,7 +48,7 @@ export async function saveFCMTokenToFirestore(newToken: string) {
 }
 
 export async function onPostParticipate(postId: string) {
-  try {    
+  try {
     const postDoc = await firestore().collection('posts').doc(postId).get();
     if (!postDoc.exists()) {
       console.error('해당 게시글 문서가 존재하지 않습니다.');
@@ -80,15 +80,15 @@ export async function onPostParticipate(postId: string) {
     if (!tokens || tokens.length === 0) {
       return console.log('⚠️ FCM 토큰이 존재하지 않습니다.');
     }
-    
+
     // 서버로 알림 요청
     await axios.post('https://sendnotification-p2szwh77pa-uc.a.run.app', {
       tokens: tokens,
       title: `"${title}" 대화창에 참여하고 싶어합니다!! 요청을 수락해주세요!!`,
-      body:`${displayName}님이 대화창에 참여하고 싶어합니다`
+      body: `${displayName}님이 대화창에 참여하고 싶어합니다`,
     });
 
-    Alert.alert('알림이 전송되었습니다!');    
+    Alert.alert('알림이 전송되었습니다!');
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error('❌ 알림 전송 실패 - AxiosError:', {
@@ -101,11 +101,17 @@ export async function onPostParticipate(postId: string) {
     }
   }
 }
-export async function sendMessageNotificationToUsers(senderId:string,users:string[],message:string) {
+export async function sendMessageNotificationToUsers(
+  senderId: string,
+  users: string[],
+  message: string,
+) {
   try {
-    const docSnap=await firestore().collection('users').doc(senderId).get();
-    if(!docSnap){return}
-    const displayName= docSnap.data()?.name;
+    const docSnap = await firestore().collection('users').doc(senderId).get();
+    if (!docSnap) {
+      return;
+    }
+    const displayName = docSnap.data()?.name;
     let tokens: string[] = [];
 
     // 1️⃣ users 배열 순회하며 tokens 수집
@@ -125,11 +131,13 @@ export async function sendMessageNotificationToUsers(senderId:string,users:strin
       return;
     }
 
+    const MAX_MESSAGE_LENGTH = 50; // 50자 제한
+    const truncatedMessage = truncateMessage(message, MAX_MESSAGE_LENGTH);
     // 2️⃣ 서버로 알림 요청
     await axios.post('https://sendnotification-p2szwh77pa-uc.a.run.app', {
       tokens: tokens,
       title: 'YUConnect',
-      body: `${displayName}: ${message}`
+      body: `${displayName}: ${truncatedMessage}`,
     });
 
     console.log('메시지 알림 전송 완료');
@@ -137,3 +145,9 @@ export async function sendMessageNotificationToUsers(senderId:string,users:strin
     console.error('메시지 알림 전송 실패:', error);
   }
 }
+
+function truncateMessage(message: string, maxLength: number) {
+  if (message.length <= maxLength) return message;
+  return message.substring(0, maxLength) + '...';
+}
+

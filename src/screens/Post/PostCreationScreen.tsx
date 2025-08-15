@@ -7,7 +7,10 @@ import { PostInfoParam } from '../../types/postInfo';
 import { RootStackParamList } from '../../types/navigation';
 import { auth, firestore } from '../../firebase';
 import PostForm from '../../components/PostForm';
-import { addChatToFirestore, addPostToFirestore } from '../../firebase/firestoreFunctions';
+import {
+  addChatToFirestore,
+  addPostToFirestore,
+} from '../../firebase/firestoreFunctions';
 import style from '../../styles/screens/PostCreationScreen';
 
 const PostCreationScreen = () => {
@@ -15,7 +18,9 @@ const PostCreationScreen = () => {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const author = auth().currentUser;
-  if(!author){return}
+  if (!author) {
+    return;
+  }
   const [post, setPost] = useState<PostInfoParam>({
     id: '', //key 값 (고유값)   -> firestore 자동생성
     authorUid: author.uid, //
@@ -35,9 +40,7 @@ const PostCreationScreen = () => {
       <TouchableOpacity
         onPress={async () => {
           const chatRef = await addChatToFirestore(post.title);
-          setPost(prev => (prev ? { ...prev, ['chatId']:chatRef.id} : prev));
-
-          addPostToFirestore(post);
+          addPostToFirestore({ ...post, chatId: chatRef.id });
           Alert.alert('게시글이 저장되었습니다!');
           navigation.replace('Home');
         }}

@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, TextInput, Button, FlatList, Text } from 'react-native';
-import firestore from '@react-native-firebase/firestore';
+import firestore, {
+  doc,
+  FirebaseFirestoreTypes,
+} from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { chatRoomInfo } from '../../types/chatRoomInfo';
 import { sendMessageNotificationToUsers } from '../../firebase/messageingSetup';
+import { Timestamp } from '@google-cloud/firestore';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
 
@@ -25,19 +29,21 @@ const ChatScreen = () => {
     const fetchUsersAndMarkRead = async () => {
       const participatedUsers = await getParticipatedUsers(chatId);
       setUsers(participatedUsers!);
-      await markMessagesAsRead(chatId, user.uid);
     };
 
     fetchUsersAndMarkRead();
-    const unsubscribe = firestore()
+    const querySnapshot = firestore()
       .collection('chats')
       .doc(chatId)
       .collection('messages')
-      .orderBy('timestamp', 'asc')
-      .onSnapshot(snapshot => {
-        const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setMessages(msgs);
-      });
+      .orderBy('timestamp', 'asc');
+
+    const unsubscribe = querySnapshot.onSnapshot(async snapshot => {
+      const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      await markMessagesAsRead(querySnapshot, user.uid);
+
+      setMessages(msgs);
+    });
 
     return () => unsubscribe();
   }, [chatId]);
@@ -45,16 +51,19 @@ const ChatScreen = () => {
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    const docRef = await firestore()
-      .collection('chats')
-      .doc(chatId)
-      .collection('messages')
-      .add({
+    const docRef = await firestore().collection('chats').doc(chatId);
+    await docRef.update({
+      lastMessage: {
         text: input,
-        senderId: user.uid,
-        readBy: [user.uid],
         timestamp: firestore.FieldValue.serverTimestamp(),
-      });
+      },
+    });
+    docRef.collection('messages').add({
+      text: input,
+      senderId: user.uid,
+      readBy: [user.uid],
+      timestamp: firestore.FieldValue.serverTimestamp(),
+    });
     await docRef.update({ id: docRef.id });
     sendMessageNotificationToUsers(user.uid, users, input);
 
@@ -83,7 +92,9 @@ const ChatScreen = () => {
               {item.text}
             </Text>
             <Text>
-              {users.length-item.readBy.length==0?"모두 읽음":users.length-item.readBy.length}
+              {users.length - item.readBy.length == 0
+                ? '모두 읽음'
+                : users.length - item.readBy.length}
             </Text>
           </View>
         )}
@@ -95,6 +106,7 @@ const ChatScreen = () => {
           value={input}
           onChangeText={setInput}
           placeholder="메시지 입력"
+          onPointerEnter={sendMessage}
         />
         <Button title="전송" onPress={sendMessage} />
       </View>
@@ -102,13 +114,11 @@ const ChatScreen = () => {
   );
 };
 
-const markMessagesAsRead = async (chatId: string, currentUserUid: string) => {
-  const messagesSnap = await firestore()
-    .collection('chats')
-    .doc(chatId)
-    .collection('messages')
-    .orderBy('timestamp', 'asc')
-    .get();
+const markMessagesAsRead = async (
+  querySnapshot: FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData>,
+  currentUserUid: string,
+) => {
+  const messagesSnap = await querySnapshot.get();
 
   messagesSnap.docs.forEach(async doc => {
     const data = doc.data();
