@@ -57,13 +57,21 @@ export function registerBackgroundHandler() {
   messaging().setBackgroundMessageHandler(async remoteMessage => {
     console.log('백그라운드 메시지:', remoteMessage);
 
-    await notifee.displayNotification({
-      title: remoteMessage.notification?.title,
-      body: remoteMessage.notification?.body,
-      android: { channelId: 'default' },
-    });
+    if (!remoteMessage.notification) {
+      // 데이터 메시지만 직접 띄우기
+      await notifee.displayNotification({
+        title: String(
+          remoteMessage.data?.title ?? remoteMessage.data?.title ?? '알림',
+        ),
+        body: String(
+          remoteMessage.data?.body ?? remoteMessage.data?.body ?? '',
+        ),
+        android: { channelId: 'default' },
+      });
+    }
   });
 }
+
 export function registerTokenRefreshHandler(
   saveToken: (token: string) => void,
 ) {
@@ -72,11 +80,13 @@ export function registerTokenRefreshHandler(
     saveToken(newToken); // Firestore나 서버에 저장
   });
 }
+
 export const onMessageReceived = async (
   message: FirebaseMessagingTypes.RemoteMessage,
 ) => {
   console.log('Message:', JSON.stringify(message));
 };
+
 // 이 방식으로 저장
 export async function saveFCMTokenToFirestore(newToken: string) {
   const uid = await auth().currentUser?.uid;
@@ -154,7 +164,8 @@ export async function sendMessageNotificationToUsers(
     if (!docSnap) {
       return;
     }
-    const displayName = docSnap.data()?.name;
+    const displayName = docSnap.data()?.name ?? '익명의 사용자';
+    console.log('알림 보내는 사람의 문서 정보:', docSnap);
     let tokens: string[] = [];
 
     // 1️⃣ users 배열 순회하며 tokens 수집
@@ -180,7 +191,7 @@ export async function sendMessageNotificationToUsers(
     // 2️⃣ 서버로 알림 요청
     await axios.post('https://sendnotification-p2szwh77pa-uc.a.run.app', {
       tokens: tokens,
-      title: 'YUConnect',
+      title: ' ',
       body: `${displayName}: ${truncatedMessage}`,
     });
 

@@ -44,7 +44,7 @@ exports.sendNotification = functions.https.onRequest(async (req, res) => {
     console.error("❌ 유효하지 않은 토큰 배열:", tokens);
     return res.status(400).send("잘못된 요청: 토큰이 없습니다.");
   }
-  if (!title) {
+  if (!title) { //빈 문자열도 누락된걸로 간주
     console.error("❌ 누락된 필드:", { title });
     return res.status(400).send("잘못된 요청: 필드 누락");
   }
@@ -57,7 +57,7 @@ exports.sendNotification = functions.https.onRequest(async (req, res) => {
     if (tokens.length === 1) {
       const message = {
         token: tokens[0],
-        notification: {
+        data: { // 콘솔에서 전송한지 앱에서 전송한지 구분을 위해 notification을 data로 대체
           title: title,
           body: body
       }};
@@ -66,7 +66,7 @@ exports.sendNotification = functions.https.onRequest(async (req, res) => {
       } else {
         const message = {
           tokens,
-          notification: {
+          data: {
             title: title,
             body: body
           }
