@@ -43,7 +43,6 @@ const ChatListScreen = () => {
           const rooms = snapshot.docs.map(
             doc => ({ ...doc.data() } as chatRoomInfo),
           );
-          console.log('대화방 목록:', rooms);
           rooms.sort((a, b) => {
             return (
               b.lastMessage.timestamp.toMillis() -
@@ -66,7 +65,6 @@ const ChatListScreen = () => {
       </View>
     );
   }
-  console.log('현재 사용자 UID:', user?.uid);
 
   return (
     <FlatList

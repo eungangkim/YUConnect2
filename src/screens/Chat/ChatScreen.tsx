@@ -9,6 +9,7 @@ import {
   Animated,
   Dimensions,
   Modal,
+  Alert,
 } from 'react-native';
 import firestore, {
   doc,
@@ -25,6 +26,10 @@ import Feather from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import style from '../../styles/screens/Chat/ChatScreen';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import {
+  deleteDocWithCollectionAndId,
+  getDocRefWithCollectionAndId,
+} from '../../firebase/firestoreFunctions';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
 const { width } = Dimensions.get('window');
@@ -40,8 +45,9 @@ const ChatScreen = () => {
   );
   const [modalVisible, setModalVisible] = useState(false);
 
-  const navigation =     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const inputRef = useRef<TextInput>(null);
   const flatListRef = useRef<FlatList>(null);
   const chatId = useRoute<ChatScreenRouteProp>().params.chatId;
@@ -124,7 +130,31 @@ const ChatScreen = () => {
 
     setInput('');
   };
+  async function exitChat() {
+    if (users.length == 1) {
+      // confirm을 Promise로 감싸서 기다릴 수 있게 함
+      const confirm = await new Promise<boolean>(resolve => {
+        Alert.alert('경고', '정말로 대화방을 나가시겠습니까?', [
+          { text: '거절', onPress: () => resolve(false), style: 'cancel' },
+          { text: '수락', onPress: () => resolve(true) },
+        ]);
+      });
 
+      if (!confirm) return; // 거절 시 함수 종료
+      else {
+        await deleteDocWithCollectionAndId('chats', chatId);
+        navigation.goBack();
+        return;
+      }
+    }
+    const uid = user?.uid;
+    const docRef = await getDocRefWithCollectionAndId('chats', chatId);
+
+    await docRef.update({
+      users: firestore.FieldValue.arrayRemove(uid),
+    });
+    navigation.goBack();
+  }
   return (
     <View style={{ flex: 1, padding: 10 }}>
       <FlatList
@@ -142,7 +172,7 @@ const ChatScreen = () => {
               {showName && (
                 <View>
                   <Text style={style.name}>
-                    {usersNameMap?.get(item.senderId) ?? '익명'}
+                    {usersNameMap?.get(item.senderId) ?? '(이름 없음)'}
                   </Text>
                 </View>
               )}
@@ -237,12 +267,22 @@ const ChatScreen = () => {
               onPressOut={() => setModalVisible(false)}
             >
               <View style={style.modalContent}>
-                <TouchableOpacity style={style.settingContainer} onPress={()=>navigation.navigate("ChatEdit",{chatId})}>
-                  <AntDesign name="edit" size={25} style={{margin:9}}/>
+                <TouchableOpacity
+                  style={style.settingContainer}
+                  onPress={() => navigation.navigate('ChatEdit', { chatId })}
+                >
+                  <AntDesign name="edit" size={25} style={{ margin: 9 }} />
                   <Text style={style.nameEdit}>대화방 이름 편집</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={style.settingContainer}>
-                  <IoniIcon name="exit-outline" size={25} style={{margin:9}}/>
+                <TouchableOpacity
+                  style={style.settingContainer}
+                  onPress={() => exitChat()}
+                >
+                  <IoniIcon
+                    name="exit-outline"
+                    size={25}
+                    style={{ margin: 9 }}
+                  />
                   <Text style={style.nameEdit}>대화방 탈퇴</Text>
                 </TouchableOpacity>
               </View>

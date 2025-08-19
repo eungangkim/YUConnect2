@@ -93,7 +93,11 @@ export async function savePostToFirestore(post: PostInfoParam) {
 
 export async function deletePostFromFirestore(post: PostInfoParam) {
   try {
-    await firestore().collection('posts').doc(post.id).delete();
+  const docRef=await firestore().collection('posts').doc(post.id);
+
+    await deleteDocWithCollectionAndId("chats",(await docRef.get()).data()?.chatId??"");
+    docRef.delete();
+    
   } catch (error) {
     console.error('Firestore 삭제 중 오류 발생:', error);
   }
@@ -191,7 +195,7 @@ export async function addChatToFirestore(title: string) {
     title: title + '의 채팅방',
     lastMessage: {
       text: '', // 초기에는 메시지 없음
-      timestamp: null, // 나중에 메시지가 들어올 때 serverTimestamp로 업데이트
+      timestamp:firestore.FieldValue.serverTimestamp(), // 나중에 메시지가 들어올 때 serverTimestamp로 업데이트
     },
     createdAt: firestore.FieldValue.serverTimestamp(), // 생성 시 서버 시간
   };
@@ -210,4 +214,54 @@ export async function updateToken() {
   await userDocRef.update({
     tokens: firebase.firestore.FieldValue.arrayUnion(token),
   });
+}
+
+export async function getDocRefWithCollectionAndId(collection:string,id:string){
+  const docRef=await firestore().collection(collection).doc(id);
+  return docRef;
+}
+
+export async function deleteDocWithCollectionAndId(collection:string,id:string) {
+  if(collection==="chats"){
+    await deleteMessages(id);
+  }
+    const docRef=await firestore().collection(collection).doc(id);
+  docRef.delete();
+}
+
+async function deleteMessages(chatId: string,batchSize = 100) {
+  const messagesRef = firestore().collection("chats").doc(chatId).collection("messages");
+  const snapshot = await messagesRef.limit(batchSize).get();
+  console.log("재귀함수 진입",snapshot);
+  if (!snapshot||snapshot.empty) return;
+
+  const batch = firestore().batch();
+  snapshot.docs.forEach(doc => batch.delete(doc.ref));
+  await batch.commit();
+
+  if (snapshot.size >= batchSize) {
+    await deleteMessages(chatId); // batch 나눠서 재귀 삭제
+  }
+}
+
+async function deleteCollectionRecursive(
+  collectionRef: FirebaseFirestoreTypes.CollectionReference,
+  batchSize = 100
+) {
+  // 1️⃣ batchSize 만큼 문서 가져오기
+  const snapshot = await collectionRef.limit(batchSize).get();
+
+  if (snapshot.empty) {
+    return; // 삭제할 문서가 없으면 종료
+  }
+
+  // 2️⃣ batch 생성 후 문서 삭제
+  const batch = firestore().batch();
+  snapshot.docs.forEach(doc => batch.delete(doc.ref));
+  await batch.commit();
+
+  // 3️⃣ 남은 문서가 있으면 재귀 호출
+  if (snapshot.size >= batchSize) {
+    await deleteCollectionRecursive(collectionRef, batchSize);
+  }
 }

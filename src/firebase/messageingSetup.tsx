@@ -71,7 +71,15 @@ export function registerBackgroundHandler() {
     }
   });
 }
-
+export function registerSaveNotificationHandler() {
+  messaging().onMessage(async remoteMessage => {
+    await firestore().collection('notifications').add({
+      title: remoteMessage.notification?.title,
+      body: remoteMessage.notification?.body,
+      timestamp: new Date(),
+    });
+  });
+}
 export function registerTokenRefreshHandler(
   saveToken: (token: string) => void,
 ) {
@@ -217,7 +225,7 @@ export async function initNotifications(saveToken: (token: string) => void) {
   await createChannel();
   registerForegroundHandler();
   registerBackgroundHandler();
-
+  registerSaveNotificationHandler();
   const token = await messaging().getToken();
   saveToken(token);
 
