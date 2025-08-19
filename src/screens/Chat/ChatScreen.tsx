@@ -8,19 +8,23 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
+  Modal,
 } from 'react-native';
 import firestore, {
   doc,
   FirebaseFirestoreTypes,
 } from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { chatRoomInfo } from '../../types/chatRoomInfo';
 import { sendMessageNotificationToUsers } from '../../firebase/messageingSetup';
 import { Timestamp } from '@google-cloud/firestore';
-import Icon from 'react-native-vector-icons/Ionicons';
+import IoniIcon from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import style from '../../styles/screens/Chat/ChatScreen';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
 const { width } = Dimensions.get('window');
@@ -34,11 +38,13 @@ const ChatScreen = () => {
   const [usersNameMap, setUsersNameMap] = useState<Map<string, string>>(
     new Map(),
   );
+  const [modalVisible, setModalVisible] = useState(false);
 
+  const navigation =     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  
   const inputRef = useRef<TextInput>(null);
   const flatListRef = useRef<FlatList>(null);
   const chatId = useRoute<ChatScreenRouteProp>().params.chatId;
-
   const user = auth().currentUser;
   if (!user || !users) {
     return;
@@ -192,7 +198,7 @@ const ChatScreen = () => {
           toggleMenu();
         }}
       >
-        <Icon name="menu" size={24} color="black" />
+        <IoniIcon name="menu" size={24} color="black" />
       </TouchableOpacity>
 
       <Animated.View //메뉴 슬라이드
@@ -214,8 +220,35 @@ const ChatScreen = () => {
             return <Text style={style.name}>{name ?? '익명'}</Text>;
           }}
         />
-        <Text style={{ marginBottom: 10 }}>편집</Text>
+        <TouchableOpacity style={{}} onPress={() => setModalVisible(true)}>
+          <Feather name="settings" size={30} />
+        </TouchableOpacity>
         <Text>메뉴 항목 3</Text>
+        {modalVisible && (
+          <Modal
+            transparent
+            visible={true}
+            animationType="fade"
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <TouchableOpacity
+              style={style.modalBackground}
+              activeOpacity={1}
+              onPressOut={() => setModalVisible(false)}
+            >
+              <View style={style.modalContent}>
+                <TouchableOpacity style={style.settingContainer} onPress={()=>navigation.navigate("ChatEdit",{chatId})}>
+                  <AntDesign name="edit" size={25} style={{margin:9}}/>
+                  <Text style={style.nameEdit}>대화방 이름 편집</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={style.settingContainer}>
+                  <IoniIcon name="exit-outline" size={25} style={{margin:9}}/>
+                  <Text style={style.nameEdit}>대화방 탈퇴</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          </Modal>
+        )}
       </Animated.View>
     </View>
   );

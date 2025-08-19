@@ -14,8 +14,8 @@ const ChatScreenStyle = StyleSheet.create({
     padding: 10,
     marginVertical: 5,
   },
-  mark:{
-    fontSize:8,
+  mark: {
+    fontSize: 8,
   },
   textInput: { flex: 1, borderWidth: 1, borderRadius: 5, padding: 8 },
   menu: {
@@ -34,6 +34,28 @@ const ChatScreenStyle = StyleSheet.create({
     backgroundColor: 'white',
     elevation: 5,
     padding: 20,
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: 300,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    elevation: 5, // Android 그림자
+    shadowColor: '#000', // iOS 그림자
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  settingContainer: { flexDirection: 'row', justifyContent: 'center' },
+  nameEdit: {
+    fontSize: 25,
   },
 });
 

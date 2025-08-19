@@ -19,4 +19,5 @@ export type RootStackParamList = {
   SinglePost: { post: PostInfoParam };
   ChatList: undefined;
   Chat: { chatId: string; title: string };
+  ChatEdit:{chatId:string;};
 };

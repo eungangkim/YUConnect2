@@ -16,6 +16,7 @@ import PostEditScreen from '../screens/Post/PostEditScreen';
 import SinglePostScreen from '../screens/Post/SinglePostScreen';
 import ChatListScreen from '../screens/Chat/ChatListScreen';
 import ChatScreen from '../screens/Chat/ChatScreen';
+import ChatEditScreen from '../screens/Chat/ChatEditScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -48,6 +49,7 @@ const StackNavigator = () => (
       <Stack.Screen name='SinglePost' component={SinglePostScreen}/>
       <Stack.Screen name="ChatList" component={ChatListScreen}/>
       <Stack.Screen name="Chat" component={ChatScreen}/>
+      <Stack.Screen name="ChatEdit" component={ChatEditScreen}/>
     </Stack.Navigator>
   </NavigationContainer>
 );

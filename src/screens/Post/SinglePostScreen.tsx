@@ -4,7 +4,7 @@ import { View } from 'react-native';
 
 import { Post } from '../../components/Post';
 import { RootStackParamList } from '../../types/navigation';
-import style from "../../styles/screens/SinglePostScreen";
+import style from '../../styles/screens/SinglePostScreen';
 
 type SinglePostRouteProp = RouteProp<RootStackParamList, 'SinglePost'>;
 
@@ -12,9 +12,8 @@ const SinglePostScreen = () => {
   const route = useRoute<SinglePostRouteProp>();
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-                      <View style={style.pageView}>
-        
-      <Post post={route.params.post}></Post>
+      <View style={style.pageView}>
+        <Post post={route.params.post}></Post>
       </View>
     </GestureHandlerRootView>
   );
