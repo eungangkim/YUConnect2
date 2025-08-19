@@ -30,10 +30,14 @@ const ChatScreen = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState('');
   const [users, setUsers] = useState<string[]>([]);
-  const inputRef = useRef<TextInput>(null);
+  const [usersNameMap, setUsersNameMap] = useState<Map<string, string>>(
+    new Map(),
+  );
 
+  const inputRef = useRef<TextInput>(null);
   const flatListRef = useRef<FlatList>(null);
   const chatId = useRoute<ChatScreenRouteProp>().params.chatId;
+
   const user = auth().currentUser;
   if (!user || !users) {
     return;
@@ -60,7 +64,12 @@ const ChatScreen = () => {
 
     const fetchUsers = async () => {
       const participatedUsers = await getParticipatedUsers(chatId);
+      const map = await initUsersNameMap(participatedUsers);
+      setUsersNameMap(map);
+
       if (isMounted) setUsers(participatedUsers!);
+
+      console.log('map entries:', Array.from(usersNameMap.entries()));
     };
     fetchUsers();
 
@@ -68,7 +77,7 @@ const ChatScreen = () => {
       .collection('chats')
       .doc(chatId)
       .collection('messages')
-      .orderBy('timestamp', 'asc');
+      .orderBy('timestamp', 'desc');
 
     const unsubscribe = querySnapshot.onSnapshot(async snapshot => {
       if (!isMounted) return;
@@ -113,7 +122,7 @@ const ChatScreen = () => {
     <View style={{ flex: 1, padding: 10 }}>
       <FlatList
         ref={flatListRef}
-        data={messages.slice().reverse()} // 뒤집어서 전달
+        data={messages}
         inverted
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
@@ -127,6 +136,9 @@ const ChatScreen = () => {
               marginVertical: 2,
             }}
           >
+            {user.uid !== item.senderId && (
+              <Text>{usersNameMap?.get(item.senderId) ?? '익명'}</Text>
+            )}
             <Text
               style={{ color: item.senderId === user?.uid ? '#fff' : '#000' }}
             >
@@ -218,5 +230,18 @@ async function getParticipatedUsers(chatId: string) {
     const data = docSnap.data() as chatRoomInfo; // 문서의 모든 필드 객체
     return data.users;
   }
+}
+
+async function initUsersNameMap(users: string[] | undefined) {
+  const map = new Map<string, string>();
+  if (!users) return map;
+  console.log('진입', users.length);
+  await Promise.all(
+    users.map(async uid => {
+      const docRef = await firestore().collection('users').doc(uid).get();
+      map.set(uid, docRef.data()?.name ?? '익명');
+    }),
+  );
+  return map;
 }
 export default ChatScreen;
