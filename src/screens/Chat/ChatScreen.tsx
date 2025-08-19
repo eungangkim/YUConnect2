@@ -20,6 +20,7 @@ import { chatRoomInfo } from '../../types/chatRoomInfo';
 import { sendMessageNotificationToUsers } from '../../firebase/messageingSetup';
 import { Timestamp } from '@google-cloud/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
+import style from '../../styles/screens/Chat/ChatScreen';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
 const { width } = Dimensions.get('window');
@@ -125,38 +126,53 @@ const ChatScreen = () => {
         data={messages}
         inverted
         keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <View
-            style={{
-              alignSelf:
-                item.senderId === user?.uid ? 'flex-end' : 'flex-start',
-              backgroundColor: item.senderId === user?.uid ? '#4e8cff' : '#ddd',
-              padding: 10,
-              borderRadius: 10,
-              marginVertical: 2,
-            }}
-          >
-            {user.uid !== item.senderId && (
-              <Text>{usersNameMap?.get(item.senderId) ?? '익명'}</Text>
-            )}
-            <Text
-              style={{ color: item.senderId === user?.uid ? '#fff' : '#000' }}
-            >
-              {item.text}
-            </Text>
-            <Text>
-              {users.length - item.readBy.length == 0
-                ? '모두 읽음'
-                : users.length - item.readBy.length}
-            </Text>
-          </View>
-        )}
+        renderItem={({ item, index }) => {
+          const prevMessage = messages[index + 1]; // inverted이므로 다음 메시지가 이전
+          const showName =
+            user.uid !== item.senderId &&
+            (!prevMessage || prevMessage.senderId !== item.senderId);
+          return (
+            <View>
+              {showName && (
+                <View>
+                  <Text style={style.name}>
+                    {usersNameMap?.get(item.senderId) ?? '익명'}
+                  </Text>
+                </View>
+              )}
+              <View
+                style={[
+                  {
+                    alignSelf:
+                      item.senderId === user?.uid ? 'flex-end' : 'flex-start',
+                    backgroundColor:
+                      item.senderId === user?.uid ? '#4e8cff' : '#ddd',
+                  },
+                  style.message,
+                ]}
+              >
+                <Text
+                  style={{
+                    color: item.senderId === user?.uid ? '#fff' : '#000',
+                  }}
+                >
+                  {item.text}
+                </Text>
+                <Text style={style.mark}>
+                  {users.length - item.readBy.length == 0
+                    ? '모두 읽음'
+                    : users.length - item.readBy.length}
+                </Text>
+              </View>
+            </View>
+          );
+        }}
       />
 
       <View style={{ flexDirection: 'row', marginTop: 5 }}>
         <TextInput
           ref={inputRef}
-          style={{ flex: 1, borderWidth: 1, borderRadius: 5, padding: 8 }}
+          style={style.textInput}
           value={input}
           onChangeText={setInput}
           placeholder="메시지 입력"
@@ -170,15 +186,7 @@ const ChatScreen = () => {
         <Button title="전송" onPress={() => sendMessage()} />
       </View>
       <TouchableOpacity //메뉴아이콘
-        style={{
-          position: 'absolute',
-          top: 10, // 화면 위에서 10px
-          right: 10, // 화면 오른쪽에서 10px
-          padding: 8,
-          backgroundColor: 'white',
-          borderRadius: 20,
-          elevation: 3, // 안드로이드 그림자
-        }}
+        style={style.menu}
         onPress={() => {
           console.log('메뉴 클릭');
           toggleMenu();
@@ -188,19 +196,25 @@ const ChatScreen = () => {
       </TouchableOpacity>
 
       <Animated.View //메뉴 슬라이드
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: menuAnim,
-          width: MENU_WIDTH,
-          height: '100%',
-          backgroundColor: 'white',
-          elevation: 5,
-          padding: 20,
-        }}
+        style={[
+          style.menuSlider,
+          {
+            right: menuAnim,
+            width: MENU_WIDTH,
+          },
+        ]}
       >
-        <Text style={{ marginBottom: 10 }}>메뉴 항목 1</Text>
-        <Text style={{ marginBottom: 10 }}>메뉴 항목 2</Text>
+        <Text style={{ marginBottom: 10 }}>사용자 목록</Text>
+
+        <FlatList
+          data={Array.from(usersNameMap.entries())}
+          keyExtractor={item => item[0]}
+          renderItem={({ item, index }) => {
+            const [uid, name] = item;
+            return <Text style={style.name}>{name ?? '익명'}</Text>;
+          }}
+        />
+        <Text style={{ marginBottom: 10 }}>편집</Text>
         <Text>메뉴 항목 3</Text>
       </Animated.View>
     </View>

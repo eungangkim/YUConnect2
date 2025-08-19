@@ -12,6 +12,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { chatRoomInfo } from '../../types/chatRoomInfo';
+import style from '../../styles/screens/Chat/ChatListScreen';
 
 const ChatListScreen = () => {
   const navigation =
@@ -30,8 +31,8 @@ const ChatListScreen = () => {
     React.useCallback(() => {
       const querySnapshot = firestore()
         .collection('chats')
-        .where('users', 'array-contains', user.uid)
-        //.orderBy('lastMessage.timestamp', 'desc');
+        .where('users', 'array-contains', user.uid);
+      //.orderBy('lastMessage.timestamp', 'desc');
       const unsubscribe = querySnapshot.onSnapshot(
         { includeMetadataChanges: true },
         async snapshot => {
@@ -43,7 +44,12 @@ const ChatListScreen = () => {
             doc => ({ ...doc.data() } as chatRoomInfo),
           );
           console.log('대화방 목록:', rooms);
-          rooms.sort((a,b)=>{return b.lastMessage.timestamp.toMillis()-a.lastMessage.timestamp.toMillis()})
+          rooms.sort((a, b) => {
+            return (
+              b.lastMessage.timestamp.toMillis() -
+              a.lastMessage.timestamp.toMillis()
+            );
+          });
           await setChatRooms(rooms);
           setLoading(false);
         },
@@ -55,7 +61,7 @@ const ChatListScreen = () => {
 
   if (chatRooms.length === 0) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={style.noChat}>
         <Text>참가한 채팅방이 없습니다.</Text>
       </View>
     );
@@ -71,12 +77,7 @@ const ChatListScreen = () => {
         const lastMessageText = item.lastMessage?.text ?? '메시지가 없습니다.';
         return (
           <TouchableOpacity
-            style={{
-              padding: 16,
-              borderBottomWidth: 1,
-              borderBottomColor: '#ddd',
-              backgroundColor: '#fff',
-            }}
+            style={style.chat}
             onPress={() =>
               navigation.navigate('Chat', {
                 chatId: item.id!,
@@ -85,14 +86,12 @@ const ChatListScreen = () => {
             }
           >
             <View
-              style={{ flexDirection: 'row', justifyContent: 'space-between' }}
+              style={style.chatInfo}
             >
               <Text style={{ fontWeight: 'bold' }}>{title}</Text>
               <Text>{item.users.length}명</Text>
             </View>
-            <Text style={{ color: '#666', marginTop: 4 }}>
-              {lastMessageText}
-            </Text>
+            <Text style={style.lastMessage}>{lastMessageText}</Text>
           </TouchableOpacity>
         );
       }}
