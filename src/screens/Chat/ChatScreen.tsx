@@ -1,5 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, TextInput, Button, FlatList, Text } from 'react-native';
+import {
+  View,
+  TextInput,
+  Button,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
+} from 'react-native';
 import firestore, {
   doc,
   FirebaseFirestoreTypes,
@@ -10,10 +19,14 @@ import { RootStackParamList } from '../../types/navigation';
 import { chatRoomInfo } from '../../types/chatRoomInfo';
 import { sendMessageNotificationToUsers } from '../../firebase/messageingSetup';
 import { Timestamp } from '@google-cloud/firestore';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
+const { width } = Dimensions.get('window');
+const MENU_WIDTH = 350;
 
 const ChatScreen = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState('');
   const [users, setUsers] = useState<string[]>([]);
@@ -25,6 +38,21 @@ const ChatScreen = () => {
   if (!user || !users) {
     return;
   }
+
+  const menuAnim = useRef(new Animated.Value(width)).current; // 화면 밖에서 시작
+
+  const toggleMenu = () => {
+    const toValue = menuOpen ? width : width - MENU_WIDTH;
+
+    Animated.timing(menuAnim, {
+      toValue,
+      duration: 700,
+      useNativeDriver: false,
+    }).start();
+
+    setMenuOpen(!menuOpen); // 상태 업데이트
+  };
+
   useEffect(() => {
     if (!user) return;
 
@@ -51,11 +79,6 @@ const ChatScreen = () => {
       await markMessagesAsRead(querySnapshot, user.uid);
 
       setMessages(msgs);
-
-      // 최하단 스크롤
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: false });
-      }, 150);
     });
     inputRef.current?.focus();
     return () => {
@@ -84,14 +107,14 @@ const ChatScreen = () => {
     await sendMessageNotificationToUsers(user.uid, users, input);
 
     setInput('');
-    flatListRef.current?.scrollToEnd({ animated: true });
   };
 
   return (
     <View style={{ flex: 1, padding: 10 }}>
       <FlatList
         ref={flatListRef}
-        data={messages}
+        data={messages.slice().reverse()} // 뒤집어서 전달
+        inverted
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <View
@@ -134,6 +157,40 @@ const ChatScreen = () => {
         />
         <Button title="전송" onPress={() => sendMessage()} />
       </View>
+      <TouchableOpacity //메뉴아이콘
+        style={{
+          position: 'absolute',
+          top: 10, // 화면 위에서 10px
+          right: 10, // 화면 오른쪽에서 10px
+          padding: 8,
+          backgroundColor: 'white',
+          borderRadius: 20,
+          elevation: 3, // 안드로이드 그림자
+        }}
+        onPress={() => {
+          console.log('메뉴 클릭');
+          toggleMenu();
+        }}
+      >
+        <Icon name="menu" size={24} color="black" />
+      </TouchableOpacity>
+
+      <Animated.View //메뉴 슬라이드
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: menuAnim,
+          width: MENU_WIDTH,
+          height: '100%',
+          backgroundColor: 'white',
+          elevation: 5,
+          padding: 20,
+        }}
+      >
+        <Text style={{ marginBottom: 10 }}>메뉴 항목 1</Text>
+        <Text style={{ marginBottom: 10 }}>메뉴 항목 2</Text>
+        <Text>메뉴 항목 3</Text>
+      </Animated.View>
     </View>
   );
 };
