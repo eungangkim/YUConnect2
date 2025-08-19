@@ -41,8 +41,6 @@ export async function sendNotification(
 ) {
   try {
     const senderId = auth().currentUser?.uid!;
-    const docSnap = await firestore().collection('users').doc(senderId).get();
-    const displayName = docSnap.data()?.name ?? '(이름 없음)';
     let tokens: string[] = await getTokens(users, senderId);
 
     if (tokens.length === 0) {
@@ -58,7 +56,7 @@ export async function sendNotification(
       tokens: tokens,
       data: {
         title,
-        body: `${displayName}: ${truncatedMessage}`,
+        body: truncatedMessage,
         senderId,
         type,
         extraData: extraData ? JSON.stringify(extraData) : '',
@@ -140,10 +138,6 @@ export function registerForegroundHandler() {
       const type = remoteMessage.data.type;
       const title = String(remoteMessage.data.title ?? '알림');
       const body = String(remoteMessage.data.body ?? '');
-      const parsedExtra =
-        typeof remoteMessage.data.extraData === 'string'
-          ? JSON.parse(remoteMessage.data.extraData)
-          : null;
       const notificationOptions = {
         title,
         body,
@@ -172,11 +166,12 @@ export function registerForegroundHandler() {
         position: 'top',
         visibilityTime: 5000, // 3초 후 자동 닫힘
       };
+
       // type이 정의되어 있으면 알림 표시
       if (type) {
         await notifee.displayNotification(notificationOptions);
         Toast.show(toastOptions);
-      }
+      } 
     }
   });
   notifee.onForegroundEvent(async ({ type, detail }) => {
