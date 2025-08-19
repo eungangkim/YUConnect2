@@ -216,6 +216,15 @@ export async function updateToken() {
   });
 }
 
+export async function addDoc(collection:string,data:object) {
+    const docRef = await firestore().collection(collection).doc();
+    docRef.set({
+      id:docRef.id,
+      createAt:firestore.FieldValue.serverTimestamp(),
+      ...data
+    })
+}
+
 export async function getDocRefWithCollectionAndId(collection:string,id:string){
   const docRef=await firestore().collection(collection).doc(id);
   return docRef;

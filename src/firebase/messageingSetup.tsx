@@ -1,93 +1,17 @@
 // messagingSetup.ts
+import notifee, { EventType } from '@notifee/react-native';
 import { firebase } from '@react-native-firebase/firestore';
 import { auth, firestore, messaging } from '../firebase';
 import axios from 'axios'; // 또는 fetch 사용 가능
-import notifee, { EventType } from '@notifee/react-native';
+import Toast, { ToastShowParams } from 'react-native-toast-message';
 
 import { Alert, AppState } from 'react-native';
 import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
-
-export async function requestUserPermission() {
-  const authStatus = await messaging().requestPermission();
-  const enabled =
-    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-    authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-  if (enabled) {
-    console.log('Authorization status:', authStatus);
-  }
-}
-export async function requestNotificationPermission() {
-  await notifee.requestPermission(); // iOS
-}
-export async function getFCMToken() {
-  const token = await messaging().getToken();
-  console.log('FCM Token:', token);
-  return token;
-}
-export function registerForegroundHandler() {
-  messaging().onMessage(async remoteMessage => {
-    console.log('포그라운드 메시지:', remoteMessage);
-
-    // 앱이 활성 상태일 때만 Alert
-    if (AppState.currentState === 'active') {
-      await notifee.displayNotification({
-        title: remoteMessage.notification?.title,
-        body: remoteMessage.notification?.body,
-        android: {
-          channelId: 'default',
-          smallIcon: 'ic_launcher', // AndroidManifest.xml에 있는 아이콘 이름
-        },
-      });
-    }
-  });
-}
-export function registerBackgroundHandler() {
-  notifee.onBackgroundEvent(async ({ type, detail }) => {
-    console.log('Notifee 백그라운드 이벤트:', type, detail);
-
-    if (type === EventType.PRESS || type === EventType.ACTION_PRESS) {
-      const { notification, pressAction } = detail;
-      console.log('알림 클릭/액션:', notification, pressAction);
-
-      // 예: 특정 화면으로 네비게이션
-      // NavigationService.navigate('Chat', { chatId: notification?.data?.chatId });
-    }
-  });
-  messaging().setBackgroundMessageHandler(async remoteMessage => {
-    console.log('백그라운드 메시지:', remoteMessage);
-
-    if (!remoteMessage.notification) {
-      // 데이터 메시지만 직접 띄우기
-      await notifee.displayNotification({
-        title: String(
-          remoteMessage.data?.title ?? remoteMessage.data?.title ?? '알림',
-        ),
-        body: String(
-          remoteMessage.data?.body ?? remoteMessage.data?.body ?? '',
-        ),
-        android: { channelId: 'default' },
-      });
-    }
-  });
-}
-export function registerSaveNotificationHandler() {
-  messaging().onMessage(async remoteMessage => {
-    await firestore().collection('notifications').add({
-      title: remoteMessage.notification?.title,
-      body: remoteMessage.notification?.body,
-      timestamp: new Date(),
-    });
-  });
-}
-export function registerTokenRefreshHandler(
-  saveToken: (token: string) => void,
-) {
-  messaging().onTokenRefresh(newToken => {
-    console.log('FCM 토큰 갱신:', newToken);
-    saveToken(newToken); // Firestore나 서버에 저장
-  });
-}
+import {
+  addChatToFirestore,
+  addDoc,
+  getDocRefWithCollectionAndId,
+} from './firestoreFunctions';
 
 export const onMessageReceived = async (
   message: FirebaseMessagingTypes.RemoteMessage,
@@ -108,85 +32,18 @@ export async function saveFCMTokenToFirestore(newToken: string) {
   }
 }
 
-export async function onPostParticipate(postId: string) {
-  try {
-    const postDoc = await firestore().collection('posts').doc(postId).get();
-    if (!postDoc.exists()) {
-      console.error('해당 게시글 문서가 존재하지 않습니다.');
-      return;
-    }
-
-    const postData = postDoc.data();
-    if (!postData) {
-      console.log('게시글 데이터가 없습니다.');
-      return;
-    }
-
-    const currentUser = auth().currentUser;
-    if (!currentUser) {
-      console.log('현재 사용자가 없습니다.');
-      return;
-    }
-
-    const { title, authorUid } = postData;
-    const displayName = currentUser.displayName ?? '익명사용자';
-    if (!title || !authorUid) {
-      console.log('title 또는 authorUid가 없습니다.', { title, authorUid });
-      return;
-    }
-
-    const userDoc = await firestore().collection('users').doc(authorUid).get();
-    const tokens = userDoc.data()?.tokens;
-
-    if (!tokens || tokens.length === 0) {
-      return console.log('⚠️ FCM 토큰이 존재하지 않습니다.');
-    }
-
-    // 서버로 알림 요청
-    await axios.post('https://sendnotification-p2szwh77pa-uc.a.run.app', {
-      tokens: tokens,
-      title: `"${title}" 대화창에 참여하고 싶어합니다!! 요청을 수락해주세요!!`,
-      body: `${displayName}님이 대화창에 참여하고 싶어합니다`,
-    });
-
-    Alert.alert('알림이 전송되었습니다!');
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('❌ 알림 전송 실패 - AxiosError:', {
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message,
-      });
-    } else {
-      console.error('❌ 알림 전송 실패 - Unknown:', error);
-    }
-  }
-}
-export async function sendMessageNotificationToUsers(
-  senderId: string,
+export async function sendNotification(
   users: string[],
+  title: string,
   message: string,
+  type: string,
+  extraData?: object,
 ) {
   try {
+    const senderId = auth().currentUser?.uid!;
     const docSnap = await firestore().collection('users').doc(senderId).get();
-    if (!docSnap) {
-      return;
-    }
-    const displayName = docSnap.data()?.name ?? '익명의 사용자';
-    console.log('알림 보내는 사람의 문서 정보:', docSnap);
-    let tokens: string[] = [];
-
-    // 1️⃣ users 배열 순회하며 tokens 수집
-    for (const uid of users) {
-      if (uid === senderId) continue; // 자기 자신 제외
-
-      const docSnap = await firestore().collection('users').doc(uid).get();
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        const userTokens: string[] = data?.tokens ?? [];
-        tokens = tokens.concat(userTokens);
-      }
-    }
+    const displayName = docSnap.data()?.name ?? '(이름 없음)';
+    let tokens: string[] = await getTokens(users, senderId);
 
     if (tokens.length === 0) {
       console.log('푸시 알림을 받을 토큰이 없음');
@@ -199,8 +56,13 @@ export async function sendMessageNotificationToUsers(
     // 2️⃣ 서버로 알림 요청
     await axios.post('https://sendnotification-p2szwh77pa-uc.a.run.app', {
       tokens: tokens,
-      title: ' ',
-      body: `${displayName}: ${truncatedMessage}`,
+      data: {
+        title,
+        body: `${displayName}: ${truncatedMessage}`,
+        senderId,
+        type,
+        extraData: extraData ? JSON.stringify(extraData) : '',
+      },
     });
 
     console.log('메시지 알림 전송 완료 tokens:', tokens);
@@ -209,6 +71,20 @@ export async function sendMessageNotificationToUsers(
   }
 }
 
+async function getTokens(users: string[], senderId: string) {
+  let tokens: string[] = [];
+  for (const uid of users) {
+    if (uid === senderId) continue; // 자기 자신 제외
+
+    const docSnap = await firestore().collection('users').doc(uid).get();
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const userTokens: string[] = data?.tokens ?? [];
+      tokens = tokens.concat(userTokens);
+    }
+  }
+  return tokens;
+}
 function truncateMessage(message: string, maxLength: number) {
   if (message.length <= maxLength) return message;
   return message.substring(0, maxLength) + '...';
@@ -225,9 +101,205 @@ export async function initNotifications(saveToken: (token: string) => void) {
   await createChannel();
   registerForegroundHandler();
   registerBackgroundHandler();
-  registerSaveNotificationHandler();
+
   const token = await messaging().getToken();
   saveToken(token);
 
   registerTokenRefreshHandler(saveToken);
+}
+
+export async function requestUserPermission() {
+  const authStatus = await messaging().requestPermission();
+  const enabled =
+    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+    authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+  if (enabled) {
+    console.log('Authorization status:', authStatus);
+  }
+}
+
+export async function requestNotificationPermission() {
+  await notifee.requestPermission(); // iOS
+}
+
+export async function getFCMToken() {
+  const token = await messaging().getToken();
+  console.log('FCM Token:', token);
+  return token;
+}
+
+export function registerForegroundHandler() {
+  const user = auth().currentUser!;
+  messaging().onMessage(async remoteMessage => {
+    console.log('포그라운드 메시지:', remoteMessage);
+    addDoc(`users/${user.uid}/notifications`, remoteMessage.data!);
+
+    // 앱이 활성 상태일 때만 Alert
+    if (AppState.currentState === 'active' && remoteMessage.data) {
+      const type = remoteMessage.data.type;
+      const title = String(remoteMessage.data.title ?? '알림');
+      const body = String(remoteMessage.data.body ?? '');
+      const parsedExtra =
+        typeof remoteMessage.data.extraData === 'string'
+          ? JSON.parse(remoteMessage.data.extraData)
+          : null;
+      const notificationOptions = {
+        title,
+        body,
+        android: {
+          channelId: 'default',
+          smallIcon: 'ic_launcher',
+          actions:
+            type === 'chat_request'
+              ? [
+                  { title: '수락', pressAction: { id: 'accept' } },
+                  { title: '거절', pressAction: { id: 'reject' } },
+                ]
+              : undefined,
+        },
+        data: {
+          type,
+          requestId: remoteMessage.data.senderId,
+          extraData: remoteMessage.data.extraData,
+        },
+      };
+
+      const toastOptions: ToastShowParams = {
+        type: 'success', // 'info' | 'error' | 'success'
+        text1: type === 'chat_request' ? '대화방 참가 요청' : '알림',
+        text2: '친구가 대화 요청을 보냈습니다 📩',
+        position: 'top',
+        visibilityTime: 5000, // 3초 후 자동 닫힘
+      };
+      // type이 정의되어 있으면 알림 표시
+      if (type) {
+        await notifee.displayNotification(notificationOptions);
+        Toast.show(toastOptions);
+      }
+    }
+  });
+  notifee.onForegroundEvent(async ({ type, detail }) => {
+    const { pressAction, notification } = detail;
+    if (!notification?.data) return;
+
+    const { requestId, type: notifiType, extraData } = notification.data;
+    let parsedExtraData: { postId?: string; chatId?: string } | null = null;
+    if (typeof extraData !== 'string') return;
+    try {
+      parsedExtraData = extraData ? JSON.parse(extraData) : null;
+    } catch (e) {
+      console.log('extraData 파싱 실패:', e);
+    }
+
+    if (type === EventType.ACTION_PRESS) {
+      if (pressAction?.id === 'accept' && parsedExtraData) {
+        console.log('✅ 채팅 요청 수락:', notification);
+
+        // 채팅방 참조 준비
+        let chatRef;
+        if (parsedExtraData.chatId) {
+          chatRef = firestore().collection('chats').doc(parsedExtraData.chatId);
+        }
+
+        if (!(await chatRef?.get())?.exists()) {
+          // 포스트 정보 가져오기
+          const postRef = firestore()
+            .collection('posts')
+            .doc(parsedExtraData.postId);
+          const postSnap = await postRef.get();
+
+          // 새 채팅 생성
+          chatRef = await addChatToFirestore(postSnap.data()?.title);
+
+          // 포스트 문서에 chatId 업데이트
+          await postRef.update({
+            chatId: chatRef.id,
+            users: firestore.FieldValue.arrayUnion(requestId),
+          });
+        }
+
+        // 채팅 참여자 추가
+        await chatRef!.update({
+          users: firestore.FieldValue.arrayUnion(requestId),
+        });
+
+        console.log('chat 문서', chatRef);
+
+        // 수락 알림 전송
+        await sendNotification(
+          [String(requestId)],
+          '요청 수락 알림',
+          '대화방 참가 요청이 수락되었습니다.',
+          'message',
+        );
+      } else if (pressAction?.id === 'reject') {
+        console.log('❌ 채팅 요청 거절:', requestId);
+        // 거절 처리 로직
+      }
+    }
+  });
+}
+
+export function registerBackgroundHandler() {
+  const user = auth().currentUser!;
+
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    console.log('백그라운드 메시지:', remoteMessage);
+    addDoc(`users/${user.uid}/notifications`, remoteMessage.data!);
+
+    if (remoteMessage.data) {
+      // 데이터 메시지만 직접 띄우기
+      const type = remoteMessage.data.type;
+      const title = String(remoteMessage.data.title ?? '알림');
+      const body = String(remoteMessage.data.body ?? '');
+
+      const notificationOptions = {
+        title,
+        body,
+        android: {
+          channelId: 'default',
+          smallIcon: 'ic_launcher',
+          actions:
+            type === 'chat_request'
+              ? [
+                  { title: '수락', pressAction: { id: 'accept' } },
+                  { title: '거절', pressAction: { id: 'reject' } },
+                ]
+              : undefined,
+        },
+        data: {
+          type,
+          requestId: remoteMessage.data.senderId,
+        },
+      };
+
+      // type이 정의되어 있으면 알림 표시
+      if (type) {
+        await notifee.displayNotification(notificationOptions);
+      }
+    }
+  });
+  notifee.onBackgroundEvent(async ({ type, detail }) => {
+    if (type === EventType.ACTION_PRESS) {
+      if (detail.pressAction?.id === 'accept') {
+        console.log(
+          '✅ [백그라운드] 채팅 요청 수락:',
+          detail.notification?.data?.requestId,
+        );
+        // Firestore update, 채팅방 연결 등
+      } else if (detail.pressAction?.id === 'reject') {
+        console.log('❌ [백그라운드] 채팅 요청 거절');
+      }
+    }
+  });
+}
+
+export function registerTokenRefreshHandler(
+  saveToken: (token: string) => void,
+) {
+  messaging().onTokenRefresh(newToken => {
+    console.log('FCM 토큰 갱신:', newToken);
+    saveToken(newToken); // Firestore나 서버에 저장
+  });
 }

@@ -7,9 +7,9 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const {setGlobalOptions} = require("firebase-functions");
-const {onRequest} = require("firebase-functions/https");
-const logger = require("firebase-functions/logger");
+const { setGlobalOptions } = require('firebase-functions');
+const { onRequest } = require('firebase-functions/https');
+const logger = require('firebase-functions/logger');
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
@@ -30,60 +30,55 @@ setGlobalOptions({ maxInstances: 10 });
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
 admin.initializeApp();
 
 const db = admin.firestore();
 
 // 알림 전송 함수: HTTP 요청으로 호출
 exports.sendNotification = functions.https.onRequest(async (req, res) => {
-  const { tokens, title, body } = req.body;
+  const { tokens, data} = req.body;
 
   if (!tokens || !Array.isArray(tokens) || tokens.length === 0) {
-    console.error("❌ 유효하지 않은 토큰 배열:", tokens);
-    return res.status(400).send("잘못된 요청: 토큰이 없습니다.");
+    console.error('❌ 유효하지 않은 토큰 배열:', tokens);
+    return res.status(400).send('잘못된 요청: 토큰이 없습니다.');
   }
-  if (!title) { //빈 문자열도 누락된걸로 간주
-    console.error("❌ 누락된 필드:", { title });
-    return res.status(400).send("잘못된 요청: 필드 누락");
+  if(!data){
+    console.error('❌ 누락된 필드:', { type });
+    return res.status(400).send('잘못된 요청: 필드 누락');
   }
   try {
     // 사용자 문서에서 FCM 토큰 가져오기
-    
 
     // FCM 메시지 구성
-    
+
     if (tokens.length === 1) {
       const message = {
         token: tokens[0],
-        data: { // 콘솔에서 전송한지 앱에서 전송한지 구분을 위해 notification을 data로 대체
-          title: title,
-          body: body
-      }};
+        data
+      };
       const response = await admin.messaging().send(message);
-      console.log("✅ 단일 알림 전송 성공:", response);
-      } else {
-        const message = {
-          tokens,
-          data: {
-            title: title,
-            body: body
-          }
-        };
+      console.log('✅ 단일 알림 전송 성공:', response);
+    } else {
+      const message = {
+        tokens,
+        data
+      };
       const response = await admin.messaging().sendMulticast(message);
-      console.log(`✅ 알림 전송: 성공 ${response.successCount}, 실패 ${response.failureCount}`);
+      console.log(
+        `✅ 알림 전송: 성공 ${response.successCount}, 실패 ${response.failureCount}`,
+      );
       response.responses.forEach((resp, idx) => {
         if (!resp.success) {
           console.error(`❌ 토큰 ${tokens[idx]} 전송 실패:`, resp.error);
         }
-      });cd
+      });
     }
 
-    return res.status(200).send("✅ 알림 전송 완료");
+    return res.status(200).send('✅ 알림 전송 완료');
   } catch (error) {
-    console.error("❌ 알림 전송 실패입니다.:", error);
-    return res.status(500).send("서버 오류");
+    console.error('❌ 알림 전송 실패입니다.:', error);
+    return res.status(500).send('서버 오류');
   }
 });
-

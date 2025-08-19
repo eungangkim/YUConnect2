@@ -5,7 +5,7 @@
  * @format
  */
 
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import { StyleSheet, useColorScheme, View } from 'react-native';
 import { useEffect } from 'react';
 
 import StackNavigator from './navigation/StackNavigator';
@@ -13,11 +13,9 @@ import {
   initNotifications,
   saveFCMTokenToFirestore,
 } from './firebase/messageingSetup';
-import { members, posts } from './data/data';
-import { auth, firestore, messaging } from './firebase';
-import { deletePostsWithInvalidUser } from './firebase/firestoreFunctions';
+import { auth } from './firebase';
 import { guestLogin } from './firebase/AuthenticationFunction';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -39,6 +37,7 @@ function App() {
   return (
     <View style={styles.container}>
       <StackNavigator />
+      <Toast/>
     </View>
   );
 }

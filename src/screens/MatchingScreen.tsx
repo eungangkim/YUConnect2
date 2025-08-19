@@ -3,32 +3,23 @@ import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
-  Image,
   LayoutChangeEvent,
-  Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  runOnJS,
-  useDerivedValue,
 } from 'react-native-reanimated';
 import {
   GestureDetector,
   GestureHandlerRootView,
   Gesture,
-  ScrollView,
 } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
-import ImageWindow from '../components/ImageWindow';
-import { onPostParticipate } from '../firebase/messageingSetup';
 import { firestore } from '../firebase/index';
-import { MemberInfoParam } from '../types/memberInfo';
 import { PostInfoParam } from '../types/postInfo';
 import { Post } from '../components/Post';
 import style from '../styles/screens/MatchingScreen';

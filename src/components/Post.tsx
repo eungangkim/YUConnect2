@@ -4,11 +4,11 @@ import { ScrollView } from 'react-native-gesture-handler';
 import ImageWindow from './ImageWindow';
 import { PostInfoParam } from '../types/postInfo';
 import style from '../styles/components/Post';
-import { onPostParticipate } from '../firebase/messageingSetup';
 import { MemberInfoParam } from '../types/memberInfo';
 import { runOnJS, SharedValue, useDerivedValue } from 'react-native-reanimated';
 import { useState } from 'react';
 import { auth, firestore } from '../firebase';
+import { sendNotification } from '../firebase/messageingSetup';
 
 type Props = {
   post: PostInfoParam;
@@ -37,27 +37,16 @@ export const Post = ({ post }: Props) => {
       });
     }
     setUsers(fetchedUsers);
-    /*
-    const firstUser = fetchedUsers[0];
-
-    if (firstUser) {
-      setSelectedImages(firstUser.images);
-    } else {
-      updateSelectedImages([]);
-    }
-      */
     setSelectedImages(post.images);
   }, []);
 
-  async function participateChat(uid: string, chatId: string) {
+  async function onParticipateChat() {
     try{
-      console.log("찾는 chat:",chatId);
-    const chatRef = firestore().collection('chats').doc(chatId);
+      const user=auth().currentUser;
+      sendNotification([post.authorUid],"대화방 참가 요청",user?.displayName??"(이름 없음)"+"님이 참가 요청을 보냈습니다!","chat_request",{chatId:post.chatId,postId:post.id});
+      // const chatRef = firestore().collection('chats').doc(chatId);
 
-    await chatRef.update({
-      users: firestore.FieldValue.arrayUnion(uid),
-    });
-    console.log(chatId,"대화방에 ",uid,"추가");
+    // 
     }catch(e){
       console.log("error",e);
     }
@@ -112,7 +101,7 @@ export const Post = ({ post }: Props) => {
         </ScrollView>
         <TouchableOpacity
           style={style.enterTouchable}
-          onPress={()=>participateChat(auth().currentUser!.uid,post.chatId)} //onPress={() => onPostParticipate(post.id)}
+          onPress={()=>onParticipateChat()} 
         >
           <Text style={style.enterText}>참가하기</Text>
         </TouchableOpacity>

@@ -19,7 +19,7 @@ import auth from '@react-native-firebase/auth';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { chatRoomInfo } from '../../types/chatRoomInfo';
-import { sendMessageNotificationToUsers } from '../../firebase/messageingSetup';
+import { sendNotification } from '../../firebase/messageingSetup';
 import { Timestamp } from '@google-cloud/firestore';
 import IoniIcon from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -126,7 +126,7 @@ const ChatScreen = () => {
       timestamp: firestore.FieldValue.serverTimestamp(),
     });
     await mesRef.update({ id: mesRef.id });
-    await sendMessageNotificationToUsers(user.uid, users, input);
+    await sendNotification( users,"메세지 전송",user.displayName+" : "+input,"message");
 
     setInput('');
   };
