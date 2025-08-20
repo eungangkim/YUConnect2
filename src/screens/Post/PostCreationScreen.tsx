@@ -9,7 +9,7 @@ import { auth, firestore } from '../../firebase';
 import PostForm from '../../components/PostForm';
 import {
   addChatToFirestore,
-  addPostToFirestore,
+  addDoc,
 } from '../../firebase/firestoreFunctions';
 import style from '../../styles/screens/PostCreationScreen';
 
@@ -40,7 +40,7 @@ const PostCreationScreen = () => {
       <TouchableOpacity
         onPress={async () => {
           const chatRef = await addChatToFirestore(post.title);
-          addPostToFirestore({ ...post, chatId: chatRef.id });
+          addDoc("posts",{ ...post, chatId: chatRef.id });
           Alert.alert('게시글이 저장되었습니다!');
           navigation.replace('Home');
         }}

@@ -5,7 +5,8 @@ import {
 } from '@react-native-firebase/auth';
 import { auth } from '.';
 import { MemberInfoParam } from '../types/memberInfo';
-import { addUserToFirestore } from './firestoreFunctions';
+import { addDoc } from './firestoreFunctions';
+import { getFCMToken } from './messageingSetup';
 
 export async function signUpWithGoogleEmail(
   member: MemberInfoParam,
@@ -14,8 +15,8 @@ export async function signUpWithGoogleEmail(
   try {
     // 1) 계정 생성
     const user = await auth().currentUser;
-
-    addUserToFirestore(user, member);
+    member.tokens=[...member.tokens,await getFCMToken()];
+    addDoc("users", member,user?.uid);
   } catch (error) {
     console.error(error);
   }
@@ -30,7 +31,8 @@ export async function signUpWithEmail(
     const user = auth().currentUser;
     if (user) {
       const credential=upgradeAnonymousToEmail(user, member.email, password);
-      addUserToFirestore(user, member);
+      member.tokens=[...member.tokens,await getFCMToken()];
+      addDoc("users", member,user.uid);
 
       // 2) 이메일 인증 메일 발송
       await (await credential).user.sendEmailVerification();

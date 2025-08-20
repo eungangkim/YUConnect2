@@ -6,10 +6,7 @@ import MemberForm from '../components/MemberForm';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
-import {
-  addUserToFirestore,
-  deleteUserFromFireStore,
-} from '../firebase/firestoreFunctions';
+import { deleteDocWithCollectionAndId } from '../firebase/firestoreFunctions';
 import {
   guestLogin,
   signUpWithEmail,
@@ -74,7 +71,8 @@ const RegisterScreen = () => {
             onPress: async () => {
               // 익명 계정 삭제
               if (user) {
-                deleteUserFromFireStore(user.uid);
+                deleteDocWithCollectionAndId("users",user.uid);
+                user.delete();
                 await guestLogin();
               }
               navigation.dispatch(e.data.action); // 원래 이동 수행

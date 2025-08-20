@@ -8,7 +8,7 @@ import { auth, firestore } from '../firebase';
 import { PostInfoParam } from '../types/postInfo';
 import style from '../styles/components/PostList';
 import { RootStackParamList } from '../types/navigation';
-import { deletePostFromFirestore } from '../firebase/firestoreFunctions';
+import { deleteDocWithCollectionAndId } from '../firebase/firestoreFunctions';
 
 type Rect = {
   x: number;
@@ -110,7 +110,7 @@ const PostList = () => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => {
-                      deletePostFromFirestore(post);
+                      deleteDocWithCollectionAndId("posts",post.id);
                     }}
                     style={style.modalButton}
                   >
