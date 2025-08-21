@@ -26,8 +26,8 @@ export const Post = ({ post }: Props) => {
     const chunkSize = 10;
     const fetchedUsers: MemberInfoParam[] = [];
 
-    for (let i = 0; i < post.userList.length; i += chunkSize) {
-      const chunk = post.userList.slice(i, i + chunkSize);
+    for (let i = 0; i < post.users.length; i += chunkSize) {
+      const chunk = post.users.slice(i, i + chunkSize);
       const usersSnap = await firestore()
         .collection('users')
         .where(firestore.FieldPath.documentId(), 'in', chunk)
@@ -63,7 +63,7 @@ export const Post = ({ post }: Props) => {
       <View style={style.userView}>
         <Text style={style.userText}>참가한 사용자 목록</Text>
         <ScrollView horizontal style={style.userListView}>
-          {post.userList.map((id: string, index: number) => {
+          {post.users.map((id: string, index: number) => {
             const user = users.find(u => u.id === id);
             if (user === undefined) {
               //console.log(users);
@@ -86,7 +86,7 @@ export const Post = ({ post }: Props) => {
           })}
         </ScrollView>
         <Text>
-          {post.title} 인원수 :{post.userList.length}/{post.maxUserCount}
+          {post.title} 인원수 :{post.users.length}/{post.maxUserCount}
         </Text>
         <ImageWindow images={selectedImages} />
         <ScrollView

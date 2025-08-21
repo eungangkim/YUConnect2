@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import { auth, firestore } from '../firebase';
 import { PostInfoParam } from '../types/postInfo';
@@ -27,35 +27,37 @@ const PostList = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  useEffect(() => {
-    if (!currentUser) return;
+  useFocusEffect(
+    useCallback(() => {
+      if (!currentUser) return;
 
-    const userPostsQuery = firestore()
-      .collection('posts')
-      .where('authorUid', '==', currentUser.uid);
+      const userPostsQuery = firestore()
+        .collection('posts')
+        .where('authorUid', '==', currentUser.uid);
 
-    userPostsQuery
-      .get()
-      .then(snapshot => {
-        if (snapshot.empty) {
-          console.log('해당 사용자의 게시글이 없습니다.');
-          setPosts([]);
-        } else {
-          const postArray: PostInfoParam[] = [];
-          snapshot.forEach(doc => {
-            const data = doc.data() as PostInfoParam;
-            postArray.push({ ...data });
-          });
-          setPosts(postArray);
-        }
-      })
-      .catch(err => {
-        console.error('게시글 조회 중 오류 발생', err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [currentUser,posts]);
+      userPostsQuery
+        .get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+            console.log('해당 사용자의 게시글이 없습니다.');
+            setPosts([]);
+          } else {
+            const postArray: PostInfoParam[] = [];
+            snapshot.forEach(doc => {
+              const data = doc.data() as PostInfoParam;
+              postArray.push({ ...data });
+            });
+            setPosts(postArray);
+          }
+        })
+        .catch(err => {
+          console.error('게시글 조회 중 오류 발생', err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }, [currentUser]),
+  );
 
   if (loading) {
     return <Text>게시글 불러오는 중...</Text>;
@@ -110,7 +112,7 @@ const PostList = () => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => {
-                      deleteDocWithCollectionAndId("posts",post.id);
+                      deleteDocWithCollectionAndId('posts', post.id);
                     }}
                     style={style.modalButton}
                   >
