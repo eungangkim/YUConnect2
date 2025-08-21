@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Text, TouchableOpacity, View, ActivityIndicator, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import ImageWindow from './ImageWindow';
@@ -43,6 +43,11 @@ export const Post = ({ post }: Props) => {
   async function onParticipateChat() {
     try{
       const user=auth().currentUser;
+      if(!user?.uid)return;
+      if(post.users.includes(user?.uid,0)) {
+        Alert.alert("경고","사용자는 해당 게시글에 이미 참여하였습니다.");
+        return;
+      }
       sendNotification([post.authorUid],"대화방 참가 요청",user?.displayName??"(이름 없음)"+"님이 참가 요청을 보냈습니다!","chat_request",{chatId:post.chatId,postId:post.id});
       // const chatRef = firestore().collection('chats').doc(chatId);
 
