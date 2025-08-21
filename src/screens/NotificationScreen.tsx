@@ -5,6 +5,7 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import {
   addChatToFirestore,
@@ -21,29 +22,35 @@ import {
 const NotificationScreen = () => {
   const user = auth().currentUser;
   const [notifications, setNotifications] = useState<any[]>([]);
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
-    async function fetch() {
-      try {
-        const notifications = await getCollection(
-          `users/${user?.uid}/notifications`,
-        );
-        const notificationList = notifications.map(doc => ({ ...doc.data() }));
+    if (!user) return;
 
-        notificationList.sort((a, b) => {
-          return b.createAt.toMillis() - a.createAt.toMillis();
+    const unsubscribe = firestore()
+      .collection(`users/${user.uid}/notifications`)
+      .orderBy('createAt', 'desc')
+      .onSnapshot(snapshot => {
+        setLoading(true);
+        const notificationList = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            createAt: data.createAt || {
+              _seconds: Date.now() / 1000,
+              _nanoseconds: 0,
+            },
+          };
         });
-
-        console.log('알림 리스트:', notificationList);
-
         setNotifications(notificationList);
-      } catch (error) {
-        console.log('fetch실패,', error);
-      }
-    }
-    fetch();
-  }, []);
+        setLoading(false);
+      });
 
+    return () => unsubscribe();
+  }, []);
+  if (loading) {
+    return <ActivityIndicator size="large" style={{ flex: 1 }} />;
+  }
   if (notifications.length == 0) {
     return <Text>알림이 없습니다.</Text>;
   }
@@ -60,22 +67,35 @@ const NotificationScreen = () => {
                 <Text>{formatDate(item.createAt)}</Text>
               </View>
               <Text style={styles.notificationBody}>{item.body}</Text>
-              {item.type === 'chat_request' && (
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => handleChatRequest(item, 'reject')}
-                  >
-                    <Text>거절</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => handleChatRequest(item, 'accept')}
-                  >
-                    <Text>수락</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
+              {item.type === 'chat_request' &&
+                (item.status === 'pending' ? (
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={() => {
+                        handleChatRequest(item, 'reject');
+                      }}
+                    >
+                      <Text>거절</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={() => {
+                        handleChatRequest(item, 'accept');
+                      }}
+                    >
+                      <Text>수락</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : item.status === 'accept' ? (
+                  <View style={styles.button}>
+                    <Text>수락함</Text>
+                  </View>
+                ) : (
+                  <View style={styles.button}>
+                    <Text>거절함</Text>
+                  </View>
+                ))}
             </View>
           );
         }}
@@ -87,9 +107,10 @@ const NotificationScreen = () => {
 export default NotificationScreen;
 
 function formatDate(timestamp: { _seconds: number; _nanoseconds: number }) {
-  const date = new Date(
-    timestamp._seconds * 1000 + timestamp._nanoseconds / 1e6,
-  );
+  const date = new Date(timestamp._seconds * 1000 + timestamp._nanoseconds / 1e6);
+
+  // UTC+9 적용
+  date.setHours(date.getHours() + 9);
 
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');

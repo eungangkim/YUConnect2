@@ -59,7 +59,7 @@ export async function sendNotification(
         body: truncatedMessage,
         senderId,
         type,
-        status: type === 'message' ? 'unread' : 'pending',
+        status: type === 'chat_request' ? 'pending':'unread',
         extraData: extraData ? JSON.stringify(extraData) : '',
       },
     });
@@ -261,7 +261,7 @@ export async function handleChatRequest(
         [String(senderId)],
         '요청 수락 알림',
         '대화방 참가 요청이 수락되었습니다.',
-        'message',
+        'chat_response',
       );
     } else if (actionId === 'reject') {
       notifiDocRef.update({ status: 'rejected' });
@@ -269,7 +269,7 @@ export async function handleChatRequest(
         [String(senderId)],
         '요청 거절 알림',
         '대화방 참가 요청이 거절되었습니다.',
-        'message',
+        'chat_response',
       ); // 거절 처리 로직
     }
   } catch (error) {
@@ -311,7 +311,6 @@ async function displayNotification(
 
 function displayToast(remoteMessage: FirebaseMessagingTypes.RemoteMessage) {
   if (!remoteMessage.data) return;
-  const type = remoteMessage.data.type;
   const text1 = String(remoteMessage.data?.title);
   const text2 = String(remoteMessage.data?.body);
 
