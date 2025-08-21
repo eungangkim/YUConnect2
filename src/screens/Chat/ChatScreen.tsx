@@ -126,7 +126,7 @@ const ChatScreen = () => {
       timestamp: firestore.FieldValue.serverTimestamp(),
     });
     await mesRef.update({ id: mesRef.id });
-    await sendNotification( users,"메세지 전송",user.displayName+" : "+input,"message");
+    await sendNotification( users,"메세지 전송",(user.displayName??"(이름 없음)")+" : "+input,"message");
 
     setInput('');
   };

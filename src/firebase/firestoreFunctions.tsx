@@ -46,8 +46,6 @@ export async function savePostToFirestore(post: PostInfoParam) {
   }
 }
 
-
-
 export async function deletePostsWithInvalidUser() {
   try {
     console.log('유효하지 않은 유저 UID를 가진 게시물 삭제 시작');
@@ -127,10 +125,34 @@ export async function addDoc(collection: string, data: object, docId?: string) {
   }
 
   docRef.set({
-    id: docRef.id,
     createAt: firestore.FieldValue.serverTimestamp(),
     ...data,
+    id: docRef.id,
   });
+  return docRef;
+}
+
+export async function updateDoc(
+  collection: string,
+  data: object,
+  docId: string,
+) {
+  let docRef;
+  if (docId) {
+    docRef = await firestore().collection(collection).doc(docId);
+  } else {
+    docRef = await firestore().collection(collection).doc();
+  }
+
+  docRef.update({
+    ...data,
+  });
+}
+
+export async function getCollection(collection: string) {
+  const collectionSnapshot = await firestore().collection(collection).get();
+  const docs = collectionSnapshot.docs;
+  return docs;
 }
 
 export async function getDocRefWithCollectionAndId(
